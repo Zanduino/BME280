@@ -23,16 +23,16 @@ BME280_Class::~BME280_Class() {} // of class destructor                       //
 ** Method begin starts I2C communications with the device, using a default address if one is not specified and    **
 ** return true if the device has been detected and false if it was not                                            **
 *******************************************************************************************************************/
-bool BME280_Class::begin(const uint8_t I2CAddress = BME280_ADDRESS ) {        // Start I2C communications         //
+bool BME280_Class::begin(const uint8_t I2CAddress ) {                         // Start I2C communications         //
   Wire.begin();                                                               // Start I2C as master device       //
   _I2CAddress = I2CAddress;                                                   // Store actual I2C address to use  //
   Wire.beginTransmission(_I2CAddress);                                        // Address the BME280               //
   delay(BME280_I2C_DELAY);                                                    // Give the BME280 time to process  //
   uint8_t errorCode = Wire.endTransmission();                                 // See if there's a device present  //
-  if (errorCode == 0) {                                                       // If we have a BME280              //
-    _cal_dig_T1 = readWordLE(BME280_T1_REG);                                  //                                  //
-    _cal_dig_T2 = readWordLE(BME280_T2_REG);                                  //                                  //
-    _cal_dig_T3 = readWordLE(BME280_T3_REG);                                  //                                  //
+  if (errorCode == 0) {                                                       // If we have a BME280 , then load  //
+    _cal_dig_T1 = readWordLE(BME280_T1_REG);                                  // all of the calibration values    //
+    _cal_dig_T2 = readWordLE(BME280_T2_REG);                                  // so that computations can be done //
+    _cal_dig_T3 = readWordLE(BME280_T3_REG);                                  // on readings to calibrate them    //
     _cal_dig_P1 = readWordLE(BME280_P1_REG);                                  //                                  //
     _cal_dig_P2 = readWordLE(BME280_P2_REG);                                  //                                  //
     _cal_dig_P3 = readWordLE(BME280_P3_REG);                                  //                                  //
