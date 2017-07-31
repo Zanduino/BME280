@@ -11,6 +11,9 @@ BME280			KEYWORD1
 # Methods and Functions (KEYWORD2) #
 ####################################
 begin			KEYWORD2
+mode			KEYWORD2
+setOversampling			KEYWORD2
+getOversampling			KEYWORD2
 
 ########################
 # Constants (LITERAL1) #
