@@ -3,10 +3,10 @@
 ** at https://www.bosch-sensortec.com/bst/products/all_products/bme280 and the datasheet is available from Bosch  **
 ** at https://ae-bst.resource.bosch.com/media/_tech/media/datasheets/BST-BME280_DS001-11.pdf                      **
 **                                                                                                                **
-** The BME280 uses either SPI or I2C. The initial library version uses only I2C.                                  **
+** The BME280 can use either SPI or I2C for communications. The initial library version uses I2C exclusively.     **
 **                                                                                                                **
 ** The most recent version of the library is available at https://github.com/SV-Zanshin/BME280 and extensive      **
-** documentation of the library as well as example programs are desribed in the project's wiki pages located at   **
+** documentation of the library as well as example programs are described in the project's wiki pages located at  **
 ** https://github.com/SV-Zanshin/BME280/wiki.                                                                     **
 **                                                                                                                **
 ** The BME280 is a very small package so it is unlikely for an Arduino hobbyist to play around with directly, the **
@@ -40,8 +40,9 @@
   *****************************************************************************************************************/
   const uint8_t  BME280_ADDRESS          = 0x77;                              // Device address power-up default  //
   const uint8_t  BME280_I2C_DELAY        =    0;                              // I2C and write time delay         //
-  const uint8_t  BME280_T1_REG           = 0x88;                              //                                  //
-  const uint8_t  BME280_T2_REG           = 0x8A;                              //                                  //
+                                                                              //----------------------------------//
+  const uint8_t  BME280_T1_REG           = 0x88;                              // Declare all the registers used   //
+  const uint8_t  BME280_T2_REG           = 0x8A;                              // in the BME280                    //
   const uint8_t  BME280_T3_REG           = 0x8C;                              //                                  //
   const uint8_t  BME280_P1_REG           = 0x8E;                              //                                  //
   const uint8_t  BME280_P2_REG           = 0x90;                              //                                  //
@@ -61,7 +62,7 @@
   const uint8_t  BME280_CHIPID_REG       = 0xD0;                              //                                  //
   const uint8_t  BME280_VERSION_REG      = 0xD1;                              //                                  //
   const uint8_t  BME280_SOFTRESET_REG    = 0xE0;                              //                                  //
-  const uint8_t  BME280_CAL26_REG        = 0xE1;                              // R calibration stored in 0xE1-0xF0//
+  const uint8_t  BME280_CAL26_REG        = 0xE1;                              // R calibration stored 0xE1 - 0xF0 //
   const uint8_t  BME280_CONTROLHUMID_REG = 0xF2;                              //                                  //
   const uint8_t  BME280_CONTROL_REG      = 0xF4;                              //                                  //
   const uint8_t  BME280_CONFIG_REG       = 0xF5;                              //                                  //
@@ -101,24 +102,11 @@
       void     writeWord(const uint8_t addr, const uint16_t data);            // Write 2 bytes at address to I2C  //
       bool     _TransmissionStatus = false;                                   // I2C communications status        //
       uint8_t  _I2CAddress         = BME280_ADDRESS;                          // Actual I2C address used w/default//
-
-      uint16_t _cal_dig_T1         = 0;                                       //                                  //
-      int16_t  _cal_dig_T2         = 0;                                       //                                  //
-      int16_t  _cal_dig_T3         = 0;                                       //                                  //
-      uint16_t _cal_dig_P1         = 0;                                       //                                  //
-      int16_t  _cal_dig_P2         = 0;                                       //                                  //
-      int16_t  _cal_dig_P3         = 0;                                       //                                  //
-      int16_t  _cal_dig_P4         = 0;                                       //                                  //
-      int16_t  _cal_dig_P5         = 0;                                       //                                  //
-      int16_t  _cal_dig_P6         = 0;                                       //                                  //
-      int16_t  _cal_dig_P7         = 0;                                       //                                  //
-      int16_t  _cal_dig_P8         = 0;                                       //                                  //
-      int16_t  _cal_dig_P9         = 0;                                       //                                  //
-      uint8_t  _cal_dig_H1         = 0;                                       //                                  //
-      int16_t  _cal_dig_H2         = 0;                                       //                                  //
-      uint8_t  _cal_dig_H3         = 0;                                       //                                  //
-      int16_t  _cal_dig_H4         = 0;                                       //                                  //
-      int16_t  _cal_dig_H5         = 0;                                       //                                  //
-      int8_t   _cal_dig_H6         = 0;                                       //                                  //
+      uint8_t  _cal_dig_H1,_cal_dig_H3;                                       // Declare all of the calibration   //
+      int8_t   _cal_dig_H6         = 0;                                       // variables                        //
+      uint16_t _cal_dig_T1,_cal_dig_P1;                                       //                                  //
+      int16_t  _cal_dig_T2,_cal_dig_T3,_cal_dig_P2,_cal_dig_P3,_cal_dig_P4,   //                                  //
+               _cal_dig_P5,_cal_dig_P6,_cal_dig_P7,_cal_dig_P8,_cal_dig_P9,   //                                  //
+               _cal_dig_H2,_cal_dig_H4,_cal_dig_H5;                           //                                  //
   }; // of BME280 class definition                                            //                                  //
 #endif                                                                        //----------------------------------//

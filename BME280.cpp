@@ -52,7 +52,6 @@ bool BME280_Class::begin(const uint8_t I2CAddress ) {                         //
   else return false;                                                          // return error if no device found  //
   return true;                                                                // return success                   //
 } // of method begin()                                                        //                                  //
-
 /*******************************************************************************************************************
 ** Method readByte reads 1 byte from the specified address                                                        **
 *******************************************************************************************************************/
@@ -74,8 +73,6 @@ void BME280_Class::writeByte(const uint8_t addr, const uint8_t data) {        //
   Wire.write(data);                                                           // Send the register address to read//
   _TransmissionStatus = Wire.endTransmission();                               // Close transmission               //
 } // of method writeByte()                                                    //                                  //
-
-
 /*******************************************************************************************************************
 ** Method readWord reads 1 word (2 bytes) from the specified address                                              **
 *******************************************************************************************************************/
@@ -112,7 +109,6 @@ void BME280_Class::writeWord(const uint8_t addr, const uint16_t data) {       //
   Wire.write((uint8_t)data);                                                  // Send the register address to read//
   _TransmissionStatus = Wire.endTransmission();                               // Close transmission               //
 } // of method writeWord()                                                    //                                  //
-
 /*******************************************************************************************************************
 ** Method writeI2C writes n-bytes to the specified address                                                        **
 *******************************************************************************************************************/
@@ -145,7 +141,6 @@ uint8_t BME280_Class::readI2C(const uint8_t addr, uint8_t *pdata,             //
   } // while we still have bytes to write                                     //                                  //
   _TransmissionStatus = Wire.endTransmission();                               // Close transmission               //
 } // of method readI2C()                                                      //                                  //
-
 /*******************************************************************************************************************
 ** Method mode() returns the current mode when called with no parameters, otherwise it sets the mode and returns  **
 ** the mode that was set.                                                                                         **
@@ -196,6 +191,5 @@ uint8_t BME280_Class::getOversampling(const uint8_t sensor) {                 //
     returnValue = readByte(BME280_CONTROL_REG)>>5;                            //                                  //
   else                                                                        //                                  //
     returnValue = (readByte(BME280_CONTROL_REG)>>2)&B00000111;                //                                  //
-//returnValue = readByte(BME280_CONTROL_REG);
   return(returnValue);                                                        // return oversampling bits         //
 } // of method getOversampling()                                              //                                  //
