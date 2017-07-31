@@ -5,7 +5,14 @@
 **                                                                                                                **
 ** The BME280 uses either SPI or I2C. The initial library version uses only I2C.                                  **
 **                                                                                                                **
-** The most recent version of the library is available at
+** The most recent version of the library is available at https://github.com/SV-Zanshin/BME280 and extensive      **
+** documentation of the library as well as example programs are desribed in the project's wiki pages located at   **
+** https://github.com/SV-Zanshin/BME280/wiki.                                                                     **
+**                                                                                                                **
+** The BME280 is a very small package so it is unlikely for an Arduino hobbyist to play around with directly, the **
+** hardware used to develop this library is a breakout board from AdaFruit which is well-documented at            **
+** https://learn.adafruit.com/adafruit-bme280-humidity-barometric-pressure-temperature-sensor-breakout.           **
+**                                                                                                                **
 ** Although programming for the Arduino and in c/c++ is new to me, I'm a professional programmer and have learned,**
 ** over the years, that it is much easier to ignore superfluous comments than it is to decipher non-existent ones;**
 ** so both my comments and variable names tend to be verbose. The code is written to fit in the first 80 spaces   **
@@ -20,7 +27,8 @@
 **                                                                                                                **
 ** Vers.  Date       Developer           Comments                                                                 **
 ** ====== ========== =================== ======================================================================== **
-** 1.0.0b 2017-07-30 Arnd@SV-Zanshin.Com Initial coding                                                           **
+** 1.0.0b 2017-07-31 Arnd@SV-Zanshin.Com Continued development                                                    **
+** 1.0.0a 2017-07-30 Arnd@SV-Zanshin.Com Started coding                                                           **
 **                                                                                                                **
 *******************************************************************************************************************/
 #include "Arduino.h"                                                          // Arduino data type definitions    //
@@ -88,11 +96,12 @@
                        const uint8_t bytesToRead);                            //                                  //
       uint8_t  readByte(const uint8_t addr);                                  // Read 1 byte from address on I2C  //
       void     writeByte(const uint8_t addr, const uint8_t data);             // Write 1 byte at address to I2C   //
-      uint16_t readWord(const uint8_t addr);                                  // Read 2 byte from address on I2C  //
-      uint16_t readWordLE(const uint8_t addr);                                // Read 2 byte from address on I2C  //
+      uint16_t readWord(const uint8_t addr);                                  // Read 2 bytes from address on I2C //
+      uint16_t readWordLE(const uint8_t addr);                                // Read 2 bytes Little-Endian on I2C//
       void     writeWord(const uint8_t addr, const uint16_t data);            // Write 2 bytes at address to I2C  //
       bool     _TransmissionStatus = false;                                   // I2C communications status        //
       uint8_t  _I2CAddress         = BME280_ADDRESS;                          // Actual I2C address used w/default//
+
       uint16_t _cal_dig_T1         = 0;                                       //                                  //
       int16_t  _cal_dig_T2         = 0;                                       //                                  //
       int16_t  _cal_dig_T3         = 0;                                       //                                  //
