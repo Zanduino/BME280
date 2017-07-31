@@ -2,7 +2,7 @@
 Once the initial version of the library and example programs is completed this text will be removed. At the moment this GIT allows for centralized developmen using several machines
 
 # BME280 library
-<img src="https://github.com/SV-Zanshin/VCNL4010/blob/master/Images/BME280/sensors_pinout.jpg" width="175" align="right"/> *Arduino* library for using the [Bosch BME280](https://www.bosch-sensortec.com/bst/products/all_products/bme280) sensor which senses temperature, humidity and pressure. Since the package is quite small and difficult to breadboard with, the [Adafruit BME280 Breakout](https://www.adafruit.com/product/2652) board was used for development.
+<img src="https://github.com/SV-Zanshin/BME280/blob/master/Images/sensors_pinout.jpg" width="175" align="right"/> *Arduino* library for using the [Bosch BME280](https://www.bosch-sensortec.com/bst/products/all_products/bme280) sensor which senses temperature, humidity and pressure. Since the package is quite small and difficult to breadboard with, the [Adafruit BME280 Breakout](https://www.adafruit.com/product/2652) board was used for development.
 
 A complete description of sensor can be found in the [BME280 Datasheet](https://ae-bst.resource.bosch.com/media/_tech/media/datasheets/BST-BME280_DS001-11.pdf) while the [Adafruit tutorial](https://learn.adafruit.com/adafruit-bme280-humidity-barometric-pressure-temperature-sensor-breakout) describes additional board information.
 
