@@ -79,6 +79,11 @@
                           UnknownSensor};                                     //                                  //
   enum oversamplingTypes {SensorOff,Oversample1,Oversample2,Oversample4,      // Enumerate oversampling values    //
                           Oversample8,Oversample16,UnknownOversample };       //                                  //
+  enum iirFilterTypes    {IIROff, IIR2, IIR4, IIR8, IIR16, UnknownIIR };      // Enumerate IIR filter values      //
+  enum inactiveTimeTypes {inactiveHalf,inactive63ms,inactive125ms,            //                                  //
+                          inactive250ms,inactive500ms,inactive1000ms,         //                                  //
+                          inactive10ms,inactive20ms,UnknownInactive };        //                                  //
+  enum measureTimeTypes  {TypicalMeasure,MaximumMeasure,UnknownMeasure };     //                                  //
   /*****************************************************************************************************************
   ** Main BME280 class for the temperature / humidity / pressure sensor                                           **
   *****************************************************************************************************************/
@@ -93,6 +98,11 @@
       uint8_t  getOversampling(const uint8_t sensor);                         // Get enum sensorType oversampling //
       void     readSensors();                                                 // read the registers in one burst  //
       uint8_t  readByte(const uint8_t addr);                                  // Read 1 byte from address on I2C  //
+      uint8_t  iirFilter();                                                   // Return the IIR Filter setting    //
+      uint8_t  iirFilter(const uint8_t iirFilterSetting );                    // Set IIR Filter and return value  //
+      uint8_t  inactiveTime();                                                // Return the inactive time setting //
+      uint8_t  inactiveTime(const uint8_t inactiveTimeSetting );              // Set inactive time & return value //
+      uint32_t measurementTime(const uint8_t measureTimeSetting=1);           // Return measurement cycle time    //
     private:                                                                  // Private methods                  //
       bool     writeI2C(const uint8_t addr,uint8_t *pdata,                    // Write n-Bytes to I2C             //
                         const uint8_t bytesToWrite);                          //                                  //

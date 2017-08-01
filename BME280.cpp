@@ -245,3 +245,64 @@ void BME280_Class::readSensors() {                                            //
   float h = (i>>12);                                                          //                                  //
   _Humidity = (uint32_t)(i>>12)*100/1024;                                     // in percent * 100                 //
 } // of method readSensors()                                                  //                                  //
+/*******************************************************************************************************************
+** Overloaded method iirFilter() when called with no parameters returns the current IIR Filter setting, otherwise **
+** when called with one parameter will set the IIR filter value and return the new setting                        **
+*******************************************************************************************************************/
+uint8_t BME280_Class::iirFilter() {                                           // return the IIR Filter setting    //
+  uint8_t returnValue = (readByte(BME280_CONFIG_REG)>1)&B00000111;            // Get 3 bits for the IIR Filter    //
+  return(returnValue);                                                        // Return IIR Filter setting        //
+} // of method iirFilter()                                                    //                                  //
+uint8_t BME280_Class::iirFilter(const uint8_t iirFilterSetting ) {            // set the IIR Filter value         //
+  uint8_t returnValue = readByte(BME280_CONFIG_REG)&B11110001;                // Get control reg, mask IIR bits   //
+  returnValue |= (iirFilterSetting&B00000111)<1;                              // use 3 bits of iirFilterSetting   //
+  writeByte(BME280_CONFIG_REG,returnValue);                                   // Write new control register value //
+  returnValue = (returnValue>1)&B00000111;                                    // Extract IIR filter setting       //
+  return(returnValue);                                                        // Return IIR Filter setting        //
+} // of method iirFilter()                                                    //                                  //
+/*******************************************************************************************************************
+** Overloaded method inactiveTime() when called with no parameters returns the current inactive time setting,     **
+** otherwise when called with one parameter will set the inactive time and return the new setting                 **
+*******************************************************************************************************************/
+uint8_t BME280_Class::inactiveTime() {                                        // return the IIR Filter setting    //
+  uint8_t returnValue = (readByte(BME280_CONFIG_REG)>4)&B00000111;            // Get 3 bits for the inactive time //
+  return(returnValue);                                                        // Return IIR Filter setting        //
+} // of method inactiveTime()                                                 //                                  //
+uint8_t BME280_Class::inactiveTime(const uint8_t inactiveTimeSetting) {       // return the IIR Filter setting    //
+  uint8_t returnValue = readByte(BME280_CONFIG_REG)&B10001111;                // Get control reg, mask inactive   //
+  returnValue |= (inactiveTimeSetting&B00000111)<4;                           // use 3 bits of inactiveTimeSetting//
+  writeByte(BME280_CONFIG_REG,returnValue);                                   // Write new control register value //
+  returnValue = (returnValue>4)&B00000111;                                    // Extract inactive setting         //
+  return(returnValue);                                                        // Return inactive time setting     //
+} // of method inactiveTime()                                                 //                                  //
+/*******************************************************************************************************************
+** Method measurementTime() returns the time in microseconds for a measurement cycle with the current settings.   **
+** A cycle includes a temperature, pressure and humidity reading plus the wait time.                              **
+*******************************************************************************************************************/
+uint32_t BME280_Class::measurementTime(const uint8_t measureTimeSetting) {    // return a cycle time in micros    //
+  uint32_t returnValue, Time1, Time2, Time3, inactive;                        // Declare local variables          //
+  inactive = inactiveTime();                                                  // Get inactive time value          //
+  switch (inactive) {                                                         // Set inactive time according to   //
+    case inactiveHalf:   inactive =     500;break;                            //                                  //
+    case inactive63ms:   inactive =   62500;break;                            //                                  //
+    case inactive125ms:  inactive =  125000;break;                            //                                  //
+    case inactive250ms:  inactive =  250000;break;                            //                                  //
+    case inactive500ms:  inactive =  500000;break;                            //                                  //
+    case inactive1000ms: inactive = 1000000;break;                            //                                  //
+    case inactive10ms:   inactive =   10000;break;                            //                                  //
+    case inactive20ms:   inactive =   20000;break;                            //                                  //
+  } // of switch for inactive time code                                       //                                  //
+  if (measureTimeSetting!=TypicalMeasure) {                                   // Set timing factors for Typ / Max //
+    Time1 = 1250;                                                             //                                  //
+    Time2 = 2300;                                                             //                                  //
+    Time3 =  575;                                                             //                                  //
+  } else {                                                                    //                                  //
+    Time1 = 1000;                                                             //                                  //
+    Time2 = 2000;                                                             //                                  //
+    Time3 =  500;                                                             //                                  //
+  } // of if-then-else typical time or maximum time                           //                                  //
+  returnValue = Time1 + (Time2*getOversampling(TemperatureSensor)) +          // Compute the time according to    //
+                (Time2*getOversampling(PressureSensor)) + Time3 +             // formula on page 51 of the data   //
+                (Time2*getOversampling(HumiditySensor)) + Time3 + inactive;   // sheet.                           //
+  return(returnValue);                                                        // Return inactive time setting     //
+} // of method measurementTime()                                              //                                  //
