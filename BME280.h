@@ -64,6 +64,7 @@
   const uint8_t  BME280_SOFTRESET_REG    = 0xE0;                              //                                  //
   const uint8_t  BME280_CAL26_REG        = 0xE1;                              // R calibration stored 0xE1 - 0xF0 //
   const uint8_t  BME280_CONTROLHUMID_REG = 0xF2;                              //                                  //
+  const uint8_t  BME280_STATUS_REG       = 0xF3;                              //                                  //
   const uint8_t  BME280_CONTROL_REG      = 0xF4;                              //                                  //
   const uint8_t  BME280_CONFIG_REG       = 0xF5;                              //                                  //
   const uint8_t  BME280_PRESSUREDATA_REG = 0xF7;                              //                                  //
@@ -76,7 +77,7 @@
                           UnknownMode };                                      //                                  //
   enum sensorTypes       {TemperatureSensor,HumiditySensor,PressureSensor,    // Enumerate the sensor types       //
                           UnknownSensor};                                     //                                  //
-  enum oversamplingTypes {NoOversampling,Oversample1,Oversample2,Oversample4, // Enumerate oversampling values    //
+  enum oversamplingTypes {SensorOff,Oversample1,Oversample2,Oversample4,      // Enumerate oversampling values    //
                           Oversample8,Oversample16,UnknownOversample };       //                                  //
   /*****************************************************************************************************************
   ** Main BME280 class for the temperature / humidity / pressure sensor                                           **
@@ -90,12 +91,13 @@
       uint8_t  mode(const uint8_t operatingMode);                             // Set device mode                  //
       bool     setOversampling(const uint8_t sensor, const uint8_t sampling); // Set enum sensorType Oversampling //
       uint8_t  getOversampling(const uint8_t sensor);                         // Get enum sensorType oversampling //
+      void     readSensors();                                                 // read the registers in one burst  //
+      uint8_t  readByte(const uint8_t addr);                                  // Read 1 byte from address on I2C  //
     private:                                                                  // Private methods                  //
       bool     writeI2C(const uint8_t addr,uint8_t *pdata,                    // Write n-Bytes to I2C             //
                         const uint8_t bytesToWrite);                          //                                  //
       uint8_t  readI2C(const uint8_t addr, uint8_t *pdata,                    // Read n-Bytes from I2C            //
                        const uint8_t bytesToRead);                            //                                  //
-      uint8_t  readByte(const uint8_t addr);                                  // Read 1 byte from address on I2C  //
       void     writeByte(const uint8_t addr, const uint8_t data);             // Write 1 byte at address to I2C   //
       uint16_t readWord(const uint8_t addr);                                  // Read 2 bytes from address on I2C //
       uint16_t readWordLE(const uint8_t addr);                                // Read 2 bytes Little-Endian on I2C//
@@ -108,5 +110,7 @@
       int16_t  _cal_dig_T2,_cal_dig_T3,_cal_dig_P2,_cal_dig_P3,_cal_dig_P4,   //                                  //
                _cal_dig_P5,_cal_dig_P6,_cal_dig_P7,_cal_dig_P8,_cal_dig_P9,   //                                  //
                _cal_dig_H2,_cal_dig_H4,_cal_dig_H5;                           //                                  //
+      int32_t  _tfine;                                                        // Global calibration value         //
+      int32_t  _Temperature,_Pressure,_Humidity;                              // Store the last readings          //
   }; // of BME280 class definition                                            //                                  //
 #endif                                                                        //----------------------------------//

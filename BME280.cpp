@@ -146,7 +146,7 @@ uint8_t BME280_Class::readI2C(const uint8_t addr, uint8_t *pdata,             //
 ** the mode that was set.                                                                                         **
 *******************************************************************************************************************/
 uint8_t BME280_Class::mode() {                                                // Return the mode                  //
-  uint8_t returnMode = readByte(BME280_CONTROL_REG) & B00000111;              // Read the 3 mode bits             //
+  uint8_t returnMode = readByte(BME280_CONTROL_REG) & B00000011;              // Read the 2 mode bits             //
   return(returnMode);                                                         // Return the value read            //
 } // of method mode()                                                         //                                  //
 /*******************************************************************************************************************
@@ -160,11 +160,11 @@ uint8_t BME280_Class::mode(const uint8_t operatingMode) {                     //
   return(returnMode);                                                         // and return that value            //
 } // of method mode()                                                         //                                  //
 /*******************************************************************************************************************
-** method setOversamping() sets the oversampling mode for the sensor (see enumerated sensorTypes) to a valid over-**
-** sampling rate as defined in the enumerated type oversamplingTypes. If either value is out of range or another  **
-** error occurs then the return value is false.                                                                   **
+** method setOversampling() sets the oversampling mode for the sensor (see enumerated sensorTypes) to a valid     **
+** oversampling rate as defined in the enumerated type oversamplingTypes. If either value is out of range or      **
+** another error occurs then the return value is false.                                                           **
 *******************************************************************************************************************/
-bool BME280_Class::setOversampling(const uint8_t sensor,                      // Set enum sensorType to Oversamp. //
+bool BME280_Class::setOversampling(const uint8_t sensor,                      // Set enum sensorType to Oversample //
                                    const uint8_t sampling) {                  //                                  //
   if(sensor>=UnknownSensor || sampling>=UnknownOversample) return(false);     // return error if out of range     //
   if(sensor==HumiditySensor)                                                  // If we have a humidity setting,   //
@@ -179,8 +179,8 @@ bool BME280_Class::setOversampling(const uint8_t sensor,                      //
   return(true);                                                               // return success                   //
 } // of method setOversampling()                                              //                                  //
 /*******************************************************************************************************************
-** method getOversamping() retrieves the oversampling value (see enum oversamplingTypes) for the enumerated sensor**
-** type (see enumerated sensorTypes)                                                                              **
+** method getOversampling() retrieves the oversampling value (see enum oversamplingTypes) for the enumerated      **
+** sensor type (see enumerated sensorTypes)                                                                       **
 *******************************************************************************************************************/
 uint8_t BME280_Class::getOversampling(const uint8_t sensor) {                 // Get enum sensorType Oversampling //
   uint8_t returnValue;                                                        // Get space for return value       //
@@ -193,3 +193,55 @@ uint8_t BME280_Class::getOversampling(const uint8_t sensor) {                 //
     returnValue = (readByte(BME280_CONTROL_REG)>>2)&B00000111;                //                                  //
   return(returnValue);                                                        // return oversampling bits         //
 } // of method getOversampling()                                              //                                  //
+/*******************************************************************************************************************
+** method readSensors() reads all 3 sensor values from the registers in one operation and then proceeds to        **
+** convert the raw temperature, pressure and humidity readings into standard metric units. The formula is written **
+** in the BME280's documentation but the math used below was taken from Adafruit's Adafruit_BME280_Library at     **
+** https://github.com/adafruit/Adafruit_BME280_Library. I think it can be refactored into more efficient code at  **
+** point in the future, but it does work correctly.                                                               **
+*******************************************************************************************************************/
+void BME280_Class::readSensors() {                                            // read the registers in one burst  //
+  uint8_t registerBuffer[8];                                                  // declare array to store registers //
+  int64_t i, j, p;                                                            // Work variables                   //
+  while(readByte(BME280_STATUS_REG)&B00001001!=0);                            // wait for active measure to finish//
+  readI2C(BME280_PRESSUREDATA_REG,registerBuffer,8);                          // read all 8 bytes in one go       //
+  /* First compute the temperature so that we can get the "_tfine" variable, which is used to compensate both the **
+  ** humidity and pressure readings                                                                               */
+  _Temperature = (int32_t)registerBuffer[3]<<12|(int32_t)registerBuffer[4]<<4|//                                  //
+  (int32_t)registerBuffer[5]>>4;                                              //                                  //
+  i         = ((((_Temperature>>3)-((int32_t)_cal_dig_T1 <<1)))*              //                                  //
+                 ((int32_t)_cal_dig_T2))>>11;                                 //                                  //
+  j         = (((((_Temperature>>4)-((int32_t)_cal_dig_T1))*                  //                                  //
+                 ((_Temperature>>4)-((int32_t)_cal_dig_T1)))>>12)             //                                  //
+                 *((int32_t)_cal_dig_T3))>>14;                                //                                  //
+  _tfine       = i + j;                                                       //                                  //
+  _Temperature = (_tfine * 5 + 128) >> 8;                                     // In centi-degrees Celsius         //
+  /* Now compute the pressure value                                                                               */
+  _Pressure    = (int32_t)registerBuffer[0]<<12|(int32_t)registerBuffer[1]<<4|//                                  //
+                 (int32_t)registerBuffer[2]>>4;                               //                                  //
+  i = ((int64_t)_tfine) - 128000;                                             //                                  //
+  j = i * i * (int64_t)_cal_dig_P6;                                           //                                  //
+  j = j + ((i*(int64_t)_cal_dig_P5)<<17);                                     //                                  //
+  j = j + (((int64_t)_cal_dig_P4)<<35);                                       //                                  //
+  i = ((i*i*(int64_t)_cal_dig_P3)>>8)+((i*(int64_t)_cal_dig_P2)<<12);         //                                  //
+  i = (((((int64_t)1)<<47)+i))*((int64_t)_cal_dig_P1)>>33;                    //                                  //
+  if (i == 0) return 0;                                                       // avoid division by 0 exception    //
+  p = 1048576 - _Pressure;                                                    //                                  //
+  p = (((p<<31) - j)*3125) / i;                                               //                                  //
+  i = (((int64_t)_cal_dig_P9) * (p>>13) * (p>>13)) >> 25;                     //                                  //
+  j = (((int64_t)_cal_dig_P8) * p) >> 19;                                     //                                  //
+  p = ((p + i + j) >> 8) + (((int64_t)_cal_dig_P7)<<4);                       //                                  //
+  _Pressure = p>>8;                                                           // in pascals                       //
+  /* Now compute the Humidity value                                                                               */
+  _Humidity     = (int32_t)registerBuffer[6]<<8|(int32_t)registerBuffer[7];   //                                  //
+  i = (_tfine - ((int32_t)76800));                                            //                                  //
+  i = (((((_Humidity<<14)-(((int32_t)_cal_dig_H4)<<20)-(((int32_t)_cal_dig_H5)//                                  //
+      *i))+((int32_t)16384))>>15)*(((((((i*((int32_t)_cal_dig_H6))>>10)*      //                                  //
+      (((i*((int32_t)_cal_dig_H3))>>11)+((int32_t)32768)))>>10)+              //                                  //
+      ((int32_t)2097152)) * ((int32_t)_cal_dig_H2) + 8192)>>14));             //                                  //
+  i = (i-(((((i>>15)*(i>>15))>>7)*((int32_t)_cal_dig_H1))>>4));               //                                  //
+  i = (i < 0) ? 0 : i;                                                        //                                  //
+  i = (i > 419430400) ? 419430400 : i;                                        //                                  //
+  float h = (i>>12);                                                          //                                  //
+  _Humidity = (uint32_t)(i>>12)*100/1024;                                     // in percent * 100                 //
+} // of method readSensors()                                                  //                                  //
