@@ -10,8 +10,11 @@ A complete description of sensor can be found in the [BME280 Datasheet](https://
 The BME280 allows the user to individually adjust the sampling rates for each component sensing (temperature, humidity and pressure) as well as to set the inter-measurement delay time and the [IIR](https://en.wikipedia.org/wiki/Infinite_impulse_response) filter sampling coeffient. Combining these settings allows very fine-grained control of measurement times vs. measurement accuracy.
 
 ## Temperature sensing
+The BME280 measures temperatures between -40°C and 85°C with a full accuracy range between 0°C and +65°C. The accuracy is ±0.5°c with a full resolution of 0.01°C. Since the temperature sensor in the small package is tied to the PCB board on which it is soldered placed and has some self-heating as well the temperature reading will usually be above ambient.
 ## Humidity sensing
+Non-condensing humidity between 0% and 100% is measured with an accuracy of ±3% at a maximum resolution of 0.008%.
 ## Pressure sensing
+The pressure sensor works in temperatures between -40°C and +85°C although the zone of full accuracy only goes from 0°C to +65°C. Pressure is measured between 300hPa and 1100hPa with an accuracy of ±1.0 hPa and a resolution of 0.2Pa
 
 A detailed library description and further details are available at the [GitHub DSFamily Wiki](https://github.com/SV-Zanshin/BME280/wiki)
 
