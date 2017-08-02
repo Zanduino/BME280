@@ -265,11 +265,6 @@ uint8_t BME280_Class::iirFilter(const uint8_t iirFilterSetting ) {            //
   returnValue |= (iirFilterSetting&B00000111)<<2;                             // use 3 bits of iirFilterSetting   //
   writeByte(BME280_CONFIG_REG,returnValue);                                   // Write new control register value //
   returnValue = (returnValue>>2)&B00000111;                                   // Extract IIR filter setting       //
-  if      (returnValue==0) _iir =  1;                                         // Store the samples needed for 75% //
-  else if (returnValue==1) _iir =  2;                                         // of step response in _iir so that //
-  else if (returnValue==2) _iir =  5;                                         // we can compute the time it takes //
-  else if (returnValue==3) _iir = 11;                                         // to make measurements             //
-  else if (returnValue==4) _iir = 22;                                         //                                  //
   return(returnValue);                                                        // Return IIR Filter setting        //
 } // of method iirFilter()                                                    //                                  //
 /*******************************************************************************************************************

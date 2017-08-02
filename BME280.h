@@ -124,7 +124,6 @@
                _cal_dig_H2,_cal_dig_H4,_cal_dig_H5;                           //                                  //
       uint8_t  _mode = UINT8_MAX;                                             // Last mode set                    //
       int32_t  _tfine;                                                        // Global calibration value         //
-      uint8_t  _iir = 1;                                                      // store
       int32_t  _Temperature,_Pressure,_Humidity;                              // Store the last readings          //
   }; // of BME280 class definition                                            //                                  //
 #endif                                                                        //----------------------------------//
