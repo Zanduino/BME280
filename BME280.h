@@ -41,10 +41,10 @@
   const uint8_t  BME280_ADDRESS          = 0x77;                              // Device address power-up default  //
   const uint8_t  BME280_I2C_DELAY        =    0;                              // I2C and write time delay         //
                                                                               //----------------------------------//
-  const uint8_t  BME280_T1_REG           = 0x88;                              // Declare all the registers used   //
-  const uint8_t  BME280_T2_REG           = 0x8A;                              // in the BME280                    //
-  const uint8_t  BME280_T3_REG           = 0x8C;                              //                                  //
-  const uint8_t  BME280_P1_REG           = 0x8E;                              //                                  //
+  const uint8_t  BME280_T1_REG           = 0x88;                              // Declare BME280 registers for the //
+  const uint8_t  BME280_T2_REG           = 0x8A;                              // calibration data used to convert //
+  const uint8_t  BME280_T3_REG           = 0x8C;                              // the raw measurements into metric //
+  const uint8_t  BME280_P1_REG           = 0x8E;                              // units                            //
   const uint8_t  BME280_P2_REG           = 0x90;                              //                                  //
   const uint8_t  BME280_P3_REG           = 0x92;                              //                                  //
   const uint8_t  BME280_P4_REG           = 0x94;                              //                                  //
@@ -58,18 +58,18 @@
   const uint8_t  BME280_H3_REG           = 0xE3;                              //                                  //
   const uint8_t  BME280_H4_REG           = 0xE4;                              //                                  //
   const uint8_t  BME280_H5_REG           = 0xE5;                              //                                  //
-  const uint8_t  BME280_H6_REG           = 0xE7;                              //                                  //
-  const uint8_t  BME280_CHIPID_REG       = 0xD0;                              //                                  //
-  const uint8_t  BME280_VERSION_REG      = 0xD1;                              //                                  //
-  const uint8_t  BME280_SOFTRESET_REG    = 0xE0;                              //                                  //
-  const uint8_t  BME280_CAL26_REG        = 0xE1;                              // R calibration stored 0xE1 - 0xF0 //
-  const uint8_t  BME280_CONTROLHUMID_REG = 0xF2;                              //                                  //
-  const uint8_t  BME280_STATUS_REG       = 0xF3;                              //                                  //
-  const uint8_t  BME280_CONTROL_REG      = 0xF4;                              //                                  //
-  const uint8_t  BME280_CONFIG_REG       = 0xF5;                              //                                  //
-  const uint8_t  BME280_PRESSUREDATA_REG = 0xF7;                              //                                  //
-  const uint8_t  BME280_TEMPDATA_REG     = 0xFA;                              //                                  //
-  const uint8_t  BME280_HUMIDDATA_REG    = 0xFD;                              //                                  //
+  const uint8_t  BME280_H6_REG           = 0xE7;                              //----------------------------------//
+  const uint8_t  BME280_CHIPID_REG       = 0xD0;                              // Chip-Id register                 //
+  const uint8_t  BME280_CHIPID           = 0x60;                              // Hard-coded value 0x60 for BME280 //
+  const uint8_t  BME280_SOFTRESET_REG    = 0xE0;                              // Reset when 0xB6 is written here  //
+  const uint8_t  BME280_SOFTWARE_CODE    = 0xB6;                              // Reset when written to reset reg  //
+  const uint8_t  BME280_CONTROLHUMID_REG = 0xF2;                              // Humidity control register        //
+  const uint8_t  BME280_STATUS_REG       = 0xF3;                              // Device status register           //
+  const uint8_t  BME280_CONTROL_REG      = 0xF4;                              // Device control register          //
+  const uint8_t  BME280_CONFIG_REG       = 0xF5;                              // Device configuration register    //
+  const uint8_t  BME280_PRESSUREDATA_REG = 0xF7;                              // Pressure readings register       //
+  const uint8_t  BME280_TEMPDATA_REG     = 0xFA;                              // Temperature readings register    //
+  const uint8_t  BME280_HUMIDDATA_REG    = 0xFD;                              // Humidity readings register       //
   /*****************************************************************************************************************
   ** Declare enumerated types used in the class                                                                   **
   *****************************************************************************************************************/
@@ -103,6 +103,7 @@
       uint8_t  inactiveTime(const uint8_t inactiveTimeSetting );              // Set inactive time & return value //
       uint32_t measurementTime(const uint8_t measureTimeSetting=1);           // Return measurement cycle time    //
       void     getSensorData(int32_t &temp, int32_t &hum, int32_t &press);    // get most recent readings         //
+      void     reset();                                                       // Reset the BME280                 //
     private:                                                                  // Private methods                  //
       void     readSensors();                                                 // read the registers in one burst  //
       bool     writeI2C(const uint8_t addr,uint8_t *pdata,                    // Write n-Bytes to I2C             //

@@ -29,28 +29,32 @@ bool BME280_Class::begin(const uint8_t I2CAddress ) {                         //
   Wire.beginTransmission(_I2CAddress);                                        // Address the BME280               //
   delay(BME280_I2C_DELAY);                                                    // Give the BME280 time to process  //
   uint8_t errorCode = Wire.endTransmission();                                 // See if there's a device present  //
-  if (errorCode == 0) {                                                       // If we have a BME280 , then load  //
-    _cal_dig_T1 = readWordLE(BME280_T1_REG);                                  // all of the calibration values    //
-    _cal_dig_T2 = readWordLE(BME280_T2_REG);                                  // so that computations can be done //
-    _cal_dig_T3 = readWordLE(BME280_T3_REG);                                  // on readings to calibrate them    //
-    _cal_dig_P1 = readWordLE(BME280_P1_REG);                                  //                                  //
-    _cal_dig_P2 = readWordLE(BME280_P2_REG);                                  //                                  //
-    _cal_dig_P3 = readWordLE(BME280_P3_REG);                                  //                                  //
-    _cal_dig_P4 = readWordLE(BME280_P4_REG);                                  //                                  //
-    _cal_dig_P5 = readWordLE(BME280_P5_REG);                                  //                                  //
-    _cal_dig_P6 = readWordLE(BME280_P6_REG);                                  //                                  //
-    _cal_dig_P7 = readWordLE(BME280_P7_REG);                                  //                                  //
-    _cal_dig_P8 = readWordLE(BME280_P8_REG);                                  //                                  //
-    _cal_dig_P9 = readWordLE(BME280_P9_REG);                                  //                                  //
-    _cal_dig_H1 = readByte(BME280_H1_REG);                                    //                                  //
-    _cal_dig_H2 = readWordLE(BME280_H2_REG);                                  //                                  //
-    _cal_dig_H3 = readByte(BME280_H3_REG);                                    //                                  //
-    _cal_dig_H4 = (readByte(BME280_H4_REG)<<4)|(readByte(BME280_H4_REG+1)&0xF);//                                 //
-    _cal_dig_H5 = (readByte(BME280_H5_REG+1)<<4)|(readByte(BME280_H5_REG)>>4);//                                  //
-    _cal_dig_H6 = readByte(BME280_H6_REG);                                    //                                  //
+  if (errorCode == 0) {                                                       // If we have a device at address,  //
+    if (readByte(BME280_CHIPID_REG)==BME280_CHIPID) {                         // and it returns correct chip id,  //
+      _cal_dig_T1 = readWordLE(BME280_T1_REG);                                // all of the calibration values    //
+      _cal_dig_T2 = readWordLE(BME280_T2_REG);                                // so that computations can be done //
+      _cal_dig_T3 = readWordLE(BME280_T3_REG);                                // on readings to calibrate them    //
+      _cal_dig_P1 = readWordLE(BME280_P1_REG);                                //                                  //
+      _cal_dig_P2 = readWordLE(BME280_P2_REG);                                //                                  //
+      _cal_dig_P3 = readWordLE(BME280_P3_REG);                                //                                  //
+      _cal_dig_P4 = readWordLE(BME280_P4_REG);                                //                                  //
+      _cal_dig_P5 = readWordLE(BME280_P5_REG);                                //                                  //
+      _cal_dig_P6 = readWordLE(BME280_P6_REG);                                //                                  //
+      _cal_dig_P7 = readWordLE(BME280_P7_REG);                                //                                  //
+      _cal_dig_P8 = readWordLE(BME280_P8_REG);                                //                                  //
+      _cal_dig_P9 = readWordLE(BME280_P9_REG);                                //                                  //
+      _cal_dig_H1 = readByte(BME280_H1_REG);                                  //                                  //
+      _cal_dig_H2 = readWordLE(BME280_H2_REG);                                //                                  //
+      _cal_dig_H3 = readByte(BME280_H3_REG);                                  //                                  //
+      _cal_dig_H4 = (readByte(BME280_H4_REG)<<4)|                             //                                  //
+                    (readByte(BME280_H4_REG+1)&0xF);                          //                                  //
+      _cal_dig_H5 = (readByte(BME280_H5_REG+1)<<4)|                           //                                  //
+                    (readByte(BME280_H5_REG)>>4);                             //                                  //
+      _cal_dig_H6 = readByte(BME280_H6_REG);                                  //                                  //
+      return true;                                                            // return success                   //
+    } // of if-then device is really a BME280                                 //                                  //      
   } // of if-then device detected                                             //                                  //
-  else return false;                                                          // return error if no device found  //
-  return true;                                                                // return success                   //
+  return false;                                                               // return failure if we get here    //
 } // of method begin()                                                        //                                  //
 /*******************************************************************************************************************
 ** Method readByte reads 1 byte from the specified address                                                        **
@@ -325,3 +329,11 @@ void BME280_Class::getSensorData(int32_t &temp, int32_t &hum, int32_t &press){//
   hum   = _Humidity;                                                          //                                  //
   press = _Pressure;                                                          //                                  //
 } // of method getSensorData()                                                //                                  //
+
+/*******************************************************************************************************************
+** Method reset() performs a device reset, as if it were powered down and back up again                           **
+*******************************************************************************************************************/
+void BME280_Class::reset() {                                                  // reset device                     //
+   writeByte(BME280_SOFTRESET_REG,BME280_SOFTWARE_CODE);                      // writing code here resets device  //
+   begin(_I2CAddress);                                                        // Start device again               //
+} // of method reset()                                                        //                                  //
