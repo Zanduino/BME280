@@ -27,6 +27,8 @@
 **                                                                                                                **
 ** Vers.  Date       Developer           Comments                                                                 **
 ** ====== ========== =================== ======================================================================== **
+** 1.0.1  2017-08-03 Arnd@SV-Zanshin.Com All read/writes now use getData() and putData() templates in this header **
+** 1.0.0  2017-08-03 Arnd@SV-Zanshin.Com Initial version with just I2C connectivity                               **
 ** 1.0.0b 2017-07-31 Arnd@SV-Zanshin.Com Continued development                                                    **
 ** 1.0.0a 2017-07-30 Arnd@SV-Zanshin.Com Started coding                                                           **
 **                                                                                                                **
@@ -105,14 +107,8 @@
       void     getSensorData(int32_t &temp, int32_t &hum, int32_t &press);    // get most recent readings         //
       void     reset();                                                       // Reset the BME280                 //
     private:                                                                  // Private methods                  //
+      uint8_t  readByte(const uint8_t addr);                                  // Read 1 byte from register addr-  //
       void     readSensors();                                                 // read the registers in one burst  //
-      uint8_t  readI2C(const uint8_t addr, uint8_t *pdata,                    // Read n-Bytes from I2C            //
-                       const uint8_t bytesToRead);                            //                                  //
-      uint8_t  readByte(const uint8_t addr);                                  // Read 1 byte from address on I2C  //
-      void     writeByte(const uint8_t addr, const uint8_t data);             // Write 1 byte at address to I2C   //
-      uint16_t readWord(const uint8_t addr);                                  // Read 2 bytes from address on I2C //
-      uint16_t readWordLE(const uint8_t addr);                                // Read 2 bytes Little-Endian on I2C//
-      void     writeWord(const uint8_t addr, const uint16_t data);            // Write 2 bytes at address to I2C  //
       bool     _TransmissionStatus = false;                                   // I2C communications status        //
       uint8_t  _I2CAddress         = BME280_ADDRESS;                          // Actual I2C address used w/default//
       uint8_t  _cal_dig_H1,_cal_dig_H3;                                       // Declare all of the calibration   //
@@ -124,5 +120,32 @@
       uint8_t  _mode = UINT8_MAX;                                             // Last mode set                    //
       int32_t  _tfine;                                                        // Global calibration value         //
       int32_t  _Temperature,_Pressure,_Humidity;                              // Store the last readings          //
+      /*************************************************************************************************************
+      ** Declare the getData and putData methods as template functions. This needs to be done in the header       **
+      ** rather than in the library code file. The template function definitions are quite handy, as it allows a  **
+      ** generic read and write function to be written which allows using any data type as the source/target as   **
+      ** opposed to having to code one function for each different possible data type.                            **
+      *************************************************************************************************************/
+      template< typename T > uint8_t &getData(const uint8_t addr,T &value) {  // method to write a structure      //
+        uint8_t* bytePtr  = (uint8_t*)&value;                                 // Pointer to structure beginning   //
+        uint8_t  structSize = sizeof(T);                                      // Number of bytes in structure     //
+        Wire.beginTransmission(_I2CAddress);                                  // Address the I2C device           //
+        Wire.write(addr);                                                     // Send the register address to read//
+        _TransmissionStatus = Wire.endTransmission();                         // Close transmission               //
+        delayMicroseconds(BME280_I2C_DELAY);                                  // delay required for sync          //
+        Wire.requestFrom(_I2CAddress, sizeof(T));                             // Request 1 byte of data           //
+        while(!Wire.available());                                             // Wait until the first byte ready  //
+        for (uint16_t i=0;i<structSize;i++) *bytePtr++ = Wire.read();         // loop for each byte to be read    //
+        return(structSize);                                                   // return the number of bytes read  //
+      } // of method getData()                                                //----------------------------------//
+      template<typename T>uint8_t &putData(const uint8_t addr,const T &value){// method to write a structure      //
+        const uint8_t* bytePtr = (const uint8_t*)&value;                      // Pointer to structure beginning   //
+        uint8_t  structSize = sizeof(T);                                      // Number of bytes in structure     //
+        Wire.beginTransmission(_I2CAddress);                                  // Address the I2C device           //
+        Wire.write(addr);                                                     // Send the register address to read//
+        for (uint8_t i=0;i<sizeof(T);i++) Wire.write(*bytePtr++);             // loop for each byte to be written //
+        _TransmissionStatus = Wire.endTransmission();                         // Close transmission               //
+        return(structSize);                                                   // return number of bytes written   //
+      } // of method putData()                                                //----------------------------------//
   }; // of BME280 class definition                                            //                                  //
 #endif                                                                        //----------------------------------//
