@@ -106,8 +106,6 @@
       void     reset();                                                       // Reset the BME280                 //
     private:                                                                  // Private methods                  //
       void     readSensors();                                                 // read the registers in one burst  //
-      bool     writeI2C(const uint8_t addr,uint8_t *pdata,                    // Write n-Bytes to I2C             //
-                        const uint8_t bytesToWrite);                          //                                  //
       uint8_t  readI2C(const uint8_t addr, uint8_t *pdata,                    // Read n-Bytes from I2C            //
                        const uint8_t bytesToRead);                            //                                  //
       uint8_t  readByte(const uint8_t addr);                                  // Read 1 byte from address on I2C  //

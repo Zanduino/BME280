@@ -52,7 +52,7 @@ bool BME280_Class::begin(const uint8_t I2CAddress ) {                         //
                     (readByte(BME280_H5_REG)>>4);                             //                                  //
       _cal_dig_H6 = readByte(BME280_H6_REG);                                  //                                  //
       return true;                                                            // return success                   //
-    } // of if-then device is really a BME280                                 //                                  //      
+    } // of if-then device is really a BME280                                 //                                  //
   } // of if-then device detected                                             //                                  //
   return false;                                                               // return failure if we get here    //
 } // of method begin()                                                        //                                  //
@@ -72,6 +72,7 @@ uint8_t BME280_Class::readByte(const uint8_t addr) {                          //
 ** Method writeByte write 1 byte to the specified address                                                         **
 *******************************************************************************************************************/
 void BME280_Class::writeByte(const uint8_t addr, const uint8_t data) {        //                                  //
+  while(readByte(BME280_STATUS_REG)&B00001001!=0);                            // wait for completed measurement   //
   Wire.beginTransmission(_I2CAddress);                                        // Address the I2C device           //
   Wire.write(addr);                                                           // Send the register address to read//
   Wire.write(data);                                                           // Send the register address to read//
@@ -107,26 +108,13 @@ uint16_t BME280_Class::readWordLE(const uint8_t addr) {                       //
 ** Method writeWord writes 2 bytes to the specified address                                                       **
 *******************************************************************************************************************/
 void BME280_Class::writeWord(const uint8_t addr, const uint16_t data) {       //                                  //
+  while(readByte(BME280_STATUS_REG)&B00001001!=0);                            // wait for completed measurement   //
   Wire.beginTransmission(_I2CAddress);                                        // Address the I2C device           //
   Wire.write(addr);                                                           // Send the register address to read//
   Wire.write((uint8_t)data>>8);                                               // Send the register address to read//
   Wire.write((uint8_t)data);                                                  // Send the register address to read//
   _TransmissionStatus = Wire.endTransmission();                               // Close transmission               //
 } // of method writeWord()                                                    //                                  //
-/*******************************************************************************************************************
-** Method writeI2C writes n-bytes to the specified address                                                        **
-*******************************************************************************************************************/
-bool BME280_Class::writeI2C(const uint8_t addr, uint8_t *pdata,               //                                  //
-                             const uint8_t bytesToWrite) {                    //                                  //
-  Wire.beginTransmission(_I2CAddress);                                        // Address the I2C device           //
-  Wire.write(addr);                                                           // Send the register address to read//
-  uint8_t i = bytesToWrite;                                                   // loop index                       //
-  while (i--) {                                                               // post-decrement the counter       //
-    Wire.write((uint8_t)pdata[0]);                                            // Write the byte addressed by ptr  //
-    pdata++;                                                                  // increment pointer to next address//
-  } // while we still have bytes to write                                     //                                  //
-  _TransmissionStatus = Wire.endTransmission();                               // Close transmission               //
-} // of method writeI2C()                                                     //                                  //
 /*******************************************************************************************************************
 ** Method readI2C reads n-bytes from the specified address                                                        **
 *******************************************************************************************************************/
@@ -169,15 +157,20 @@ uint8_t BME280_Class::mode(const uint8_t operatingMode) {                     //
 bool BME280_Class::setOversampling(const uint8_t sensor,                      // Set enum sensorType to Oversample//
                                    const uint8_t sampling) {                  //                                  //
   if(sensor>=UnknownSensor || sampling>=UnknownOversample) return(false);     // return error if out of range     //
-  if(sensor==HumiditySensor)                                                  // If we have a humidity setting,   //
-    writeByte(BME280_CONTROLHUMID_REG,                                        // update register with 3 bits for  //
-              readByte(BME280_CONTROLHUMID_REG)&B11111000|sampling);          // sampling                         //
-  else if (sensor==TemperatureSensor)                                         // otherwise if we have temperature //
-    writeByte(BME280_CONTROL_REG,                                             // then update register bits        //
-    (readByte(BME280_CONTROL_REG)&B00011111)|(sampling<<5));                  //                                  //
-  else                                                                        //                                  //
-      writeByte(BME280_CONTROL_REG,                                           // otherwise set the pressure sensor//
-                (readByte(BME280_CONTROL_REG)&B11100011)|(sampling<<2));      // register bits to the sample rate //
+  uint8_t tempControl = readByte(BME280_CONTROL_REG);                         // Read the control register        //
+  delay(60);                                                                  // Give the BME280 a bit of time    //
+  writeByte(BME280_CONTROL_REG,0);                                            // Put BME280 into sleep mode       //
+  if(sensor==HumiditySensor) {                                                // If we have a humidity setting,   //
+    writeByte(BME280_CONTROLHUMID_REG,sampling);                              // Update humidity register         //
+    delay(60);                                                                // Give the BME280 a bit of time    //
+    writeByte(BME280_CONTROL_REG,tempControl);                                // Restore register values          //
+    delay(60);                                                                // Give the BME280 a bit of time    //
+  } else if (sensor==TemperatureSensor) {                                     // otherwise if we have temperature //
+    tempControl = (tempControl&B00011111)|(sampling<<5);                      // Update the register bits         //
+  } else {                                                                    //                                  //
+    tempControl = (tempControl&B11100011)|(sampling<<2);                      // Update the register bits         //
+  } // of if-then-else temperature reading                                    //                                  //
+  writeByte(BME280_CONTROL_REG,tempControl);                                  // Write value to the register      //
   return(true);                                                               // return success                   //
 } // of method setOversampling()                                              //                                  //
 /*******************************************************************************************************************
@@ -212,7 +205,7 @@ void BME280_Class::readSensors() {                                            //
   uint8_t registerBuffer[8];                                                  // declare array to store registers //
   int64_t i, j, p;                                                            // Work variables                   //
   if((_mode==ForcedMode||_mode==ForcedMode2)&&mode()==SleepMode) mode(_mode); // Force a reading if necessary     //
-  while(readByte(BME280_STATUS_REG)&B00001001!=0);                            // wait for active measurement      //
+  while(readByte(BME280_STATUS_REG)&B00001001!=0);                            // wait for measurement to complete //
   readI2C(BME280_PRESSUREDATA_REG,registerBuffer,8);                          // read all 8 bytes in one go       //
   /* First compute the temperature so that we can get the "_tfine" variable, which is used to compensate both the **
   ** humidity and pressure readings                                                                               */
@@ -329,7 +322,6 @@ void BME280_Class::getSensorData(int32_t &temp, int32_t &hum, int32_t &press){//
   hum   = _Humidity;                                                          //                                  //
   press = _Pressure;                                                          //                                  //
 } // of method getSensorData()                                                //                                  //
-
 /*******************************************************************************************************************
 ** Method reset() performs a device reset, as if it were powered down and back up again                           **
 *******************************************************************************************************************/
