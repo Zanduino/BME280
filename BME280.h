@@ -3,7 +3,8 @@
 ** at https://www.bosch-sensortec.com/bst/products/all_products/bme280 and the datasheet is available from Bosch  **
 ** at https://ae-bst.resource.bosch.com/media/_tech/media/datasheets/BST-BME280_DS001-11.pdf                      **
 **                                                                                                                **
-** The BME280 can use either SPI or I2C for communications. The initial library version uses I2C exclusively.     **
+** The BME280 can use either SPI or I2C for communications. The initial library version 1.0.0 defines only I2C    **
+** while subsequent versions also allow SPI communications                                                        **
 **                                                                                                                **
 ** The most recent version of the library is available at https://github.com/SV-Zanshin/BME280 and extensive      **
 ** documentation of the library as well as example programs are described in the project's wiki pages located at  **
@@ -28,6 +29,7 @@
 ** Vers.  Date       Developer           Comments                                                                 **
 ** ====== ========== =================== ======================================================================== **
 ** 1.0.1  2017-08-03 Arnd@SV-Zanshin.Com All read/writes now use getData() and putData() templates in this header **
+**                                       changed begin() method for I2C to search for first instance of BME280    **
 ** 1.0.0  2017-08-03 Arnd@SV-Zanshin.Com Initial version with just I2C connectivity                               **
 ** 1.0.0b 2017-07-31 Arnd@SV-Zanshin.Com Continued development                                                    **
 ** 1.0.0a 2017-07-30 Arnd@SV-Zanshin.Com Started coding                                                           **
@@ -40,8 +42,17 @@
   /*****************************************************************************************************************
   ** Declare constants used in the class                                                                          **
   *****************************************************************************************************************/
-  const uint8_t  BME280_ADDRESS          = 0x77;                              // Device address power-up default  //
-  const uint8_t  BME280_I2C_DELAY        =    0;                              // I2C and write time delay         //
+  const uint8_t  BME280_CHIPID_REG       = 0xD0;                              // Chip-Id register                 //
+  const uint8_t  BME280_CHIPID           = 0x60;                              // Hard-coded value 0x60 for BME280 //
+  const uint8_t  BME280_SOFTRESET_REG    = 0xE0;                              // Reset when 0xB6 is written here  //
+  const uint8_t  BME280_CONTROLHUMID_REG = 0xF2;                              // Humidity control register        //
+  const uint8_t  BME280_STATUS_REG       = 0xF3;                              // Device status register           //
+  const uint8_t  BME280_CONTROL_REG      = 0xF4;                              // Device control register          //
+  const uint8_t  BME280_CONFIG_REG       = 0xF5;                              // Device configuration register    //
+  const uint8_t  BME280_PRESSUREDATA_REG = 0xF7;                              // Pressure readings register       //
+  const uint8_t  BME280_TEMPDATA_REG     = 0xFA;                              // Temperature readings register    //
+  const uint8_t  BME280_HUMIDDATA_REG    = 0xFD;                              // Humidity readings register       //
+  const uint8_t  BME280_SOFTWARE_CODE    = 0xB6;                              // Reset on this written to resetreg//
                                                                               //----------------------------------//
   const uint8_t  BME280_T1_REG           = 0x88;                              // Declare BME280 registers for the //
   const uint8_t  BME280_T2_REG           = 0x8A;                              // calibration data used to convert //
@@ -61,17 +72,6 @@
   const uint8_t  BME280_H4_REG           = 0xE4;                              //                                  //
   const uint8_t  BME280_H5_REG           = 0xE5;                              //                                  //
   const uint8_t  BME280_H6_REG           = 0xE7;                              //----------------------------------//
-  const uint8_t  BME280_CHIPID_REG       = 0xD0;                              // Chip-Id register                 //
-  const uint8_t  BME280_CHIPID           = 0x60;                              // Hard-coded value 0x60 for BME280 //
-  const uint8_t  BME280_SOFTRESET_REG    = 0xE0;                              // Reset when 0xB6 is written here  //
-  const uint8_t  BME280_SOFTWARE_CODE    = 0xB6;                              // Reset when written to reset reg  //
-  const uint8_t  BME280_CONTROLHUMID_REG = 0xF2;                              // Humidity control register        //
-  const uint8_t  BME280_STATUS_REG       = 0xF3;                              // Device status register           //
-  const uint8_t  BME280_CONTROL_REG      = 0xF4;                              // Device control register          //
-  const uint8_t  BME280_CONFIG_REG       = 0xF5;                              // Device configuration register    //
-  const uint8_t  BME280_PRESSUREDATA_REG = 0xF7;                              // Pressure readings register       //
-  const uint8_t  BME280_TEMPDATA_REG     = 0xFA;                              // Temperature readings register    //
-  const uint8_t  BME280_HUMIDDATA_REG    = 0xFD;                              // Humidity readings register       //
   /*****************************************************************************************************************
   ** Declare enumerated types used in the class                                                                   **
   *****************************************************************************************************************/
@@ -93,7 +93,7 @@
     public:                                                                   // Publicly visible methods         //
       BME280_Class();                                                         // Class constructor                //
       ~BME280_Class();                                                        // Class destructor                 //
-      bool     begin(const uint8_t I2CAddress = BME280_ADDRESS );             // I2C Communications at address    //
+      bool     begin();                                                       // Start using I2C Communications   //
       uint8_t  mode();                                                        // return device mode               //
       uint8_t  mode(const uint8_t operatingMode);                             // Set device mode                  //
       bool     setOversampling(const uint8_t sensor, const uint8_t sampling); // Set enum sensorType Oversampling //
@@ -101,8 +101,7 @@
                                const bool    actual = false);                 // if "actual" set then return #    //
       uint8_t  iirFilter();                                                   // Return the IIR Filter setting    //
       uint8_t  iirFilter(const uint8_t iirFilterSetting );                    // Set IIR Filter and return value  //
-      uint8_t  inactiveTime();                                                // Return the inactive time setting //
-      uint8_t  inactiveTime(const uint8_t inactiveTimeSetting );              // Set inactive time & return value //
+      uint8_t  inactiveTime(const uint8_t inactiveTimeSetting=UINT8_MAX);     // Set inactive time & return value //
       uint32_t measurementTime(const uint8_t measureTimeSetting=1);           // Return measurement cycle time    //
       void     getSensorData(int32_t &temp, int32_t &hum, int32_t &press);    // get most recent readings         //
       void     reset();                                                       // Reset the BME280                 //
@@ -111,7 +110,7 @@
       void     readSensors();                                                 // read the registers in one burst  //
       void     getCalibration();                                              // Load calibration from registers  //
       bool     _TransmissionStatus = false;                                   // I2C communications status        //
-      uint8_t  _I2CAddress         = BME280_ADDRESS;                          // Actual I2C address used w/default//
+      uint8_t  _I2CAddress         = 0;                                       // Default is no I2C address known  //
       uint8_t  _cal_dig_H1,_cal_dig_H3;                                       // Declare all of the calibration   //
       int8_t   _cal_dig_H6         = 0;                                       // variables                        //
       uint16_t _cal_dig_T1,_cal_dig_P1;                                       //                                  //
@@ -131,12 +130,11 @@
       ** than in the c++ program library file.                                                                    **
       *************************************************************************************************************/
       template< typename T > uint8_t &getData(const uint8_t addr,T &value) {  // method to write a structure      //
-        uint8_t* bytePtr  = (uint8_t*)&value;                                 // Pointer to structure beginning   //
+        uint8_t* bytePtr    = (uint8_t*)&value;                               // Pointer to structure beginning   //
         uint8_t  structSize = sizeof(T);                                      // Number of bytes in structure     //
         Wire.beginTransmission(_I2CAddress);                                  // Address the I2C device           //
         Wire.write(addr);                                                     // Send register address to read    //
         _TransmissionStatus = Wire.endTransmission();                         // Close transmission               //
-        delayMicroseconds(BME280_I2C_DELAY);                                  // delay required for sync          //
         Wire.requestFrom(_I2CAddress, sizeof(T));                             // Request 1 byte of data           //
         while(!Wire.available());                                             // Wait until the first byte ready  //
         for (uint16_t i=0;i<structSize;i++) *bytePtr++ = Wire.read();         // loop for each byte to be read    //
@@ -144,7 +142,7 @@
       } // of method getData()                                                //----------------------------------//
       template<typename T>uint8_t &putData(const uint8_t addr,const T &value){// method to write a structure      //
         const uint8_t* bytePtr = (const uint8_t*)&value;                      // Pointer to structure beginning   //
-        uint8_t  structSize = sizeof(T);                                      // Number of bytes in structure     //
+        uint8_t  structSize   = sizeof(T);                                    // Number of bytes in structure     //
         Wire.beginTransmission(_I2CAddress);                                  // Address the I2C device           //
         Wire.write(addr);                                                     // Send register address to write   //
         for (uint8_t i=0;i<sizeof(T);i++) Wire.write(*bytePtr++);             // loop for each byte to be written //

@@ -10,31 +10,27 @@
 **                                                                                                                **
 *******************************************************************************************************************/
 #include "BME280.h"                                                           // Include the header definition    //
-                                                                              //                                  //
+                                                                              //----------------------------------//
+BME280_Class::BME280_Class()  {}                                              // Empty & unused class constructor //
+BME280_Class::~BME280_Class() {}                                              // Empty & unused class destructor  //
 /*******************************************************************************************************************
-** Class Constructor instantiates the class                                                                       **
+** Method begin starts communications with the device. It is overloaded to allow for 3 different connection types **
+** to be used - I2C, Hardware SPI and Software SPI. When called with no parameters the I2C mode is enabled and    **
+** the I2C bus is scanned for the first BME280 (typically at 0x76 or 0x77 unless an I2C expander is used to remap **
+** the address.                                                                                                   **
 *******************************************************************************************************************/
-BME280_Class::BME280_Class()  {} // of class constructor                      //                                  //
-/*******************************************************************************************************************
-** Class Destructor currently does nothing and is included for compatibility purposes                             **
-*******************************************************************************************************************/
-BME280_Class::~BME280_Class() {} // of class destructor                       //                                  //
-/*******************************************************************************************************************
-** Method begin starts I2C communications with the device, using a default address if one is not specified and    **
-** return true if the device has been detected and false if it was not                                            **
-*******************************************************************************************************************/
-bool BME280_Class::begin(const uint8_t I2CAddress ) {                         // Start I2C communications         //
+bool BME280_Class::begin() {                                                  // Find I2C device                  //
   Wire.begin();                                                               // Start I2C as master device       //
-  _I2CAddress = I2CAddress;                                                   // Store actual I2C address to use  //
-  Wire.beginTransmission(_I2CAddress);                                        // Address the BME280               //
-  delay(BME280_I2C_DELAY);                                                    // Give the BME280 time to process  //
-  uint8_t errorCode = Wire.endTransmission();                                 // See if there's a device present  //
-  if (errorCode == 0) {                                                       // If we have a device at address,  //
-    if (readByte(BME280_CHIPID_REG)==BME280_CHIPID) {                         // and it returns correct chip id,  //
-      getCalibration();                                                       // get the calibration values       //
-      return true;                                                            // return success                   //
-    } // of if-then device is really a BME280                                 //                                  //
-  } // of if-then device detected                                             //                                  //
+  for(_I2CAddress=0;_I2CAddress<127;_I2CAddress++) {                          // loop all possible addresses      //
+    Wire.beginTransmission(_I2CAddress);                                      // Check current address for BME280 //
+    if (Wire.endTransmission()==0) {                                          // If no error we have a device     //
+      if (readByte(BME280_CHIPID_REG)==BME280_CHIPID) {                       // check for correct chip id        //
+        getCalibration();                                                     // get the calibration values       //
+        return true;                                                          // return success                   //
+      } // of if-then device is really a BME280                               //                                  //
+    } // of if-then we have found a device                                    //                                  //
+  } // of for-next each I2C address loop                                      //                                  //
+  _I2CAddress = 0;                                                            // Set to 0 to denote no I2C found  //
   return false;                                                               // return failure if we get here    //
 } // of method begin()                                                        //                                  //
 /*******************************************************************************************************************
@@ -133,8 +129,8 @@ uint8_t BME280_Class::getOversampling(const uint8_t sensor,                   //
   else                                                                        //                                  //
     returnValue = (readByte(BME280_CONTROL_REG)>>2)&B00000111;                //                                  //
   if (actual) {                                                               // If the actual flag has been set, //
-    if      (returnValue==3) returnValue = 4;                                 // then return the oversampling     //
-    else if (returnValue==4) returnValue = 8;                                 // multiplier instead of the table  //
+    if      (returnValue==3) returnValue =  4;                                // then return the oversampling     //
+    else if (returnValue==4) returnValue =  8;                                // multiplier instead of the table  //
     else if (returnValue>4)  returnValue = 16;                                // index value                      //
   } // of if-then we return the actual count                                  //                                  //
   return(returnValue);                                                        // return oversampling bits         //
@@ -152,8 +148,9 @@ void BME280_Class::readSensors() {                                            //
   if((_mode==ForcedMode||_mode==ForcedMode2)&&mode()==SleepMode) mode(_mode); // Force a reading if necessary     //
   while(readByte(BME280_STATUS_REG)&B00001001!=0);                            // wait for measurement to complete //
   getData(BME280_PRESSUREDATA_REG,registerBuffer);                            // read all 8 bytes in one go       //
-  /* First compute the temperature so that we can get the "_tfine" variable, which is used to compensate both the **
-  ** humidity and pressure readings                                                                               */
+                    //*******************************//                       //                                  //
+                    // First compute the temperature //                       //                                  //
+                    //*******************************//                       //                                  //
   _Temperature = (int32_t)registerBuffer[3]<<12|(int32_t)registerBuffer[4]<<4|//                                  //
   (int32_t)registerBuffer[5]>>4;                                              //                                  //
   i         = ((((_Temperature>>3)-((int32_t)_cal_dig_T1 <<1)))*              //                                  //
@@ -163,7 +160,9 @@ void BME280_Class::readSensors() {                                            //
                  *((int32_t)_cal_dig_T3))>>14;                                //                                  //
   _tfine       = i + j;                                                       //                                  //
   _Temperature = (_tfine * 5 + 128) >> 8;                                     // In centi-degrees Celsius         //
-  /* Now compute the pressure value                                                                               */
+                    //*******************************//                       //                                  //
+                    // Now compute the pressure      //                       //                                  //
+                    //*******************************//                       //                                  //
   _Pressure    = (int32_t)registerBuffer[0]<<12|(int32_t)registerBuffer[1]<<4|//                                  //
                  (int32_t)registerBuffer[2]>>4;                               //                                  //
   i = ((int64_t)_tfine) - 128000;                                             //                                  //
@@ -181,7 +180,9 @@ void BME280_Class::readSensors() {                                            //
     p = ((p + i + j) >> 8) + (((int64_t)_cal_dig_P7)<<4);                     //                                  //
     _Pressure = p>>8;                                                         // in pascals                       //
   } // of if pressure would cause error                                       //                                  //
-  /* Now compute the Humidity value                                                                               */
+                    //**********************************//                    //                                  //
+                    // And finally compute the humidity //                    //                                  //
+                    //**********************************//                    //                                  //
   _Humidity     = (int32_t)registerBuffer[6]<<8|(int32_t)registerBuffer[7];   //                                  //
   i = (_tfine - ((int32_t)76800));                                            //                                  //
   i = (((((_Humidity<<14)-(((int32_t)_cal_dig_H4)<<20)-(((int32_t)_cal_dig_H5)//                                  //
@@ -210,18 +211,16 @@ uint8_t BME280_Class::iirFilter(const uint8_t iirFilterSetting ) {            //
   return(returnValue);                                                        // Return IIR Filter setting        //
 } // of method iirFilter()                                                    //                                  //
 /*******************************************************************************************************************
-** Overloaded method inactiveTime() when called with no parameters returns the current inactive time setting,     **
-** otherwise when called with one parameter will set the inactive time and return the new setting                 **
+** Method inactiveTime() when called with no parameters returns the current inactive time setting, otherwise uses **
+** the parameter to set the inactive time.                                                                        **
 *******************************************************************************************************************/
-uint8_t BME280_Class::inactiveTime() {                                        // return the IIR Filter setting    //
-  uint8_t returnValue = (readByte(BME280_CONFIG_REG)>>5)&B00000111;           // Get 3 bits for the inactive time //
-  return(returnValue);                                                        // Return IIR Filter setting        //
-} // of method inactiveTime()                                                 //                                  //
 uint8_t BME280_Class::inactiveTime(const uint8_t inactiveTimeSetting) {       // return the IIR Filter setting    //
   uint8_t returnValue = readByte(BME280_CONFIG_REG)&B10001111;                // Get control reg, mask inactive   //
-  returnValue |= (inactiveTimeSetting&B00000111)<<5;                          // use 3 bits of inactiveTimeSetting//
-  putData(BME280_CONFIG_REG,returnValue);                                     // Write new control register value //
-  returnValue = (returnValue>>5)&B00000111;                                   // Extract inactive setting         //
+  if (inactiveTimeSetting!=UINT8_MAX) {                                       // If we have a specified value     //
+    returnValue |= (inactiveTimeSetting&B00000111)<<5;                        // use 3 bits of inactiveTimeSetting//
+    putData(BME280_CONFIG_REG,returnValue);                                   // Write new control register value //
+  } // of if-then we have specified a new setting                             //                                  //
+  returnValue = (returnValue>>5)&B00000111;                                   // Extract 3 setting bits           //
   return(returnValue);                                                        // Return inactive time setting     //
 } // of method inactiveTime()                                                 //                                  //
 /*******************************************************************************************************************
@@ -272,5 +271,5 @@ void BME280_Class::getSensorData(int32_t &temp, int32_t &hum, int32_t &press){//
 *******************************************************************************************************************/
 void BME280_Class::reset() {                                                  // reset device                     //
    putData(BME280_SOFTRESET_REG,BME280_SOFTWARE_CODE);                        // writing code here resets device  //
-   begin(_I2CAddress);                                                        // Start device again               //
+   if (_I2CAddress) begin();                                                  // Start device again if I2C        //
 } // of method reset()                                                        //                                  //
