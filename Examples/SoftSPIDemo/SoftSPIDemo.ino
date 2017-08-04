@@ -11,11 +11,12 @@
 ** hardware used to develop this library is a breakout board from AdaFruit which is well-documented at            **
 ** https://learn.adafruit.com/adafruit-bme280-humidity-barometric-pressure-temperature-sensor-breakout.           **
 **                                                                                                                **
-** This example program initializes the BME280 to use I2C for communications. The library does not using floating **
-** point mathematics to save on computation space and time, the values for Temperature, Pressure and Humidity are **
-** returned in deci-units, e.g. a Temperature reading of "2731" means "27.31" degrees Celsius. The display in     **
-** the example program uses floating point for demonstration purposes only.  Note that the temperature reading is **
-** generally higher than the ambient temperature due to die and PCB temperature and self-heating of the element.  **
+** This example program initializes the BME280 to use software SPI for communications. The library does not use   **
+** floating point mathematics to save on computation space and time, the values for Temperature, Pressure and     **
+** Humidity are returned in deci-units, e.g. a Temperature reading of "2731" means "27.31" degrees Celsius. The   **
+** display in the example program uses floating point for demonstration purposes only.  Note that the temperature **
+** reading is generally higher than the ambient temperature due to die and PCB temperature and self-heating of    **
+** the element.                                                                                                   **
 **                                                                                                                **
 ** The pressure reading needs to be adjusted for altitude to get the adjusted pressure reading. There are numerous**
 ** sources on the internet for formula converting from standard sea-level pressure to altitude, see the data sheet**
@@ -32,9 +33,7 @@
 **                                                                                                                **
 ** Vers.  Date       Developer           Comments                                                                 **
 ** ====== ========== =================== ======================================================================== **
-** 1.0.1  2017-08-04 Arnd@SV-Zanshin.Com Made output cleaner and toggled humidity readings                        **
-** 1.0.0  2017-08-02 Arnd@SV-Zanshin.Com Cleaned up code prior to first release                                   **
-** 1.0.0b 2017-07-30 Arnd@SV-Zanshin.Com Initial coding                                                           **
+** 1.0.0  2017-08-04 Arnd@SV-Zanshin.Com Cloned from I2CDemo.ino program                                          **
 **                                                                                                                **
 *******************************************************************************************************************/
 #include <BME280.h>                                                          // Include the BME280 Sensor library //
@@ -42,6 +41,20 @@
 ** Declare all program constants                                                                                  **
 *******************************************************************************************************************/
 const uint32_t SERIAL_SPEED            = 115200;                              // Set the baud rate for Serial I/O //
+
+                /************************************************************************************
+                ** Software SPI requires 4 digital pins to be defined in order to work:            **
+                ** CS   - Chip Select or sometimes called SS for Slave-select. Used to address chip**
+                ** MISO - Master In, Slave Out. Wire used to send data from the BME280 to program  **
+                ** MOSI - Mast Out,  Slave In. Wire used to send data from the program to BME280   **
+                ** SCK  - System Clock. This is used for timing data                               **
+                **                                                                                 **
+                ************************************************************************************/
+const uint8_t  SPI_CS_PIN              = 10;                                  // Pin for slave-select of BME280   //
+const uint8_t  SPI_SCK_PIN             = 13;                                  // Pin for clock signal             //
+const uint8_t  SPI_MOSI_PIN            = 11;                                  // Master-out, Slave-in Pin         //
+const uint8_t  SPI_MISO_PIN            = 12;                                  // Master-in, Slave-out Pin         //
+
 /*******************************************************************************************************************
 ** Declare global variables and instantiate classes                                                               **
 *******************************************************************************************************************/
@@ -66,10 +79,10 @@ void setup() {                                                                //
   #ifdef  __AVR_ATmega32U4__                                                  // If this is a 32U4 processor, then//
     delay(3000);                                                              // wait 3 seconds for the serial    //
   #endif                                                                      // interface to initialize          //
-  Serial.println(F("Starting I2CDemo example program for BME280"));           //                                  //
+  Serial.println(F("Starting Software SPIDemo example program for BME280"));  //                                  //
   Serial.print(F("- Initializing BME280 sensor\n"));                          //                                  //
                                                                               //==================================//
-  while (!BME280.begin()) {                                                   // Start BME280 using I2C protocol  //
+  while (!BME280.begin(SPI_CS_PIN,SPI_MOSI_PIN,SPI_MISO_PIN,SPI_SCK_PIN)) {   // Start using software SPI protocol//
                                                                               //==================================//
     Serial.println(F("-  Unable to find BME280. Waiting 3 seconds."));        // Show error text                  //
     delay(3000);                                                              // wait three seconds               //
@@ -126,7 +139,6 @@ void loop() {                                                                 //
       Serial.print(F("OFF"));                                                 //                                  //
     } // of if-then-else humidity sensing turned off                          //                                  //
     Serial.println(F(" humidity sensing"));                                   //                                  //
-    BME280.setOversampling(HumiditySensor,SensorOff);                         // No longer interested in humidity //
     Serial.print(F("- Each measurement cycle will now take "));               //                                  //
     Serial.print(BME280.measurementTime(MaximumMeasure)/1000.0);              // returns microseconds             //
     Serial.println(F("ms.\n"));                                               //                                  //

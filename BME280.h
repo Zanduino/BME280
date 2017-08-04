@@ -3,7 +3,8 @@
 ** at https://www.bosch-sensortec.com/bst/products/all_products/bme280 and the datasheet is available from Bosch  **
 ** at https://ae-bst.resource.bosch.com/media/_tech/media/datasheets/BST-BME280_DS001-11.pdf                      **
 **                                                                                                                **
-** The BME280 can use either SPI or I2C for communications. The initial library version uses I2C exclusively.     **
+** The BME280 can use either SPI or I2C for communications. The initial library version 1.0.0 defines only I2C    **
+** while subsequent versions also allow SPI communications                                                        **
 **                                                                                                                **
 ** The most recent version of the library is available at https://github.com/SV-Zanshin/BME280 and extensive      **
 ** documentation of the library as well as example programs are described in the project's wiki pages located at  **
@@ -27,19 +28,35 @@
 **                                                                                                                **
 ** Vers.  Date       Developer           Comments                                                                 **
 ** ====== ========== =================== ======================================================================== **
+** 1.0.1  2017-08-03 Arnd@SV-Zanshin.Com All read/writes now use getData() and putData() templates in this header **
+**                                       changed begin() method for I2C to search for first instance of BME280    **
+**                                       Added hardware and software SPI functionality and tested it              **
+** 1.0.0  2017-08-03 Arnd@SV-Zanshin.Com Initial version with just I2C connectivity                               **
 ** 1.0.0b 2017-07-31 Arnd@SV-Zanshin.Com Continued development                                                    **
 ** 1.0.0a 2017-07-30 Arnd@SV-Zanshin.Com Started coding                                                           **
 **                                                                                                                **
 *******************************************************************************************************************/
 #include "Arduino.h"                                                          // Arduino data type definitions    //
 #include <Wire.h>                                                             // Standard I2C "Wire" library      //
+#include <SPI.h>                                                              // Standard SPI library             //
 #ifndef BME280_h                                                              // Guard code definition            //
   #define BME280_h                                                            // Define the name inside guard code//
   /*****************************************************************************************************************
   ** Declare constants used in the class                                                                          **
   *****************************************************************************************************************/
-  const uint8_t  BME280_ADDRESS          = 0x77;                              // Device address power-up default  //
-  const uint8_t  BME280_I2C_DELAY        =    0;                              // I2C and write time delay         //
+  const uint8_t  I2C_READ_ATTEMPTS       = 1000;                              // Attempts to read before timeout  //
+  const uint32_t SPI_HERTZ               = 500000;                            // SPI speed in Hz                  //
+  const uint8_t  BME280_CHIPID_REG       = 0xD0;                              // Chip-Id register                 //
+  const uint8_t  BME280_CHIPID           = 0x60;                              // Hard-coded value 0x60 for BME280 //
+  const uint8_t  BME280_SOFTRESET_REG    = 0xE0;                              // Reset when 0xB6 is written here  //
+  const uint8_t  BME280_CONTROLHUMID_REG = 0xF2;                              // Humidity control register        //
+  const uint8_t  BME280_STATUS_REG       = 0xF3;                              // Device status register           //
+  const uint8_t  BME280_CONTROL_REG      = 0xF4;                              // Device control register          //
+  const uint8_t  BME280_CONFIG_REG       = 0xF5;                              // Device configuration register    //
+  const uint8_t  BME280_PRESSUREDATA_REG = 0xF7;                              // Pressure readings register       //
+  const uint8_t  BME280_TEMPDATA_REG     = 0xFA;                              // Temperature readings register    //
+  const uint8_t  BME280_HUMIDDATA_REG    = 0xFD;                              // Humidity readings register       //
+  const uint8_t  BME280_SOFTWARE_CODE    = 0xB6;                              // Reset on this written to resetreg//
                                                                               //----------------------------------//
   const uint8_t  BME280_T1_REG           = 0x88;                              // Declare BME280 registers for the //
   const uint8_t  BME280_T2_REG           = 0x8A;                              // calibration data used to convert //
@@ -59,17 +76,6 @@
   const uint8_t  BME280_H4_REG           = 0xE4;                              //                                  //
   const uint8_t  BME280_H5_REG           = 0xE5;                              //                                  //
   const uint8_t  BME280_H6_REG           = 0xE7;                              //----------------------------------//
-  const uint8_t  BME280_CHIPID_REG       = 0xD0;                              // Chip-Id register                 //
-  const uint8_t  BME280_CHIPID           = 0x60;                              // Hard-coded value 0x60 for BME280 //
-  const uint8_t  BME280_SOFTRESET_REG    = 0xE0;                              // Reset when 0xB6 is written here  //
-  const uint8_t  BME280_SOFTWARE_CODE    = 0xB6;                              // Reset when written to reset reg  //
-  const uint8_t  BME280_CONTROLHUMID_REG = 0xF2;                              // Humidity control register        //
-  const uint8_t  BME280_STATUS_REG       = 0xF3;                              // Device status register           //
-  const uint8_t  BME280_CONTROL_REG      = 0xF4;                              // Device control register          //
-  const uint8_t  BME280_CONFIG_REG       = 0xF5;                              // Device configuration register    //
-  const uint8_t  BME280_PRESSUREDATA_REG = 0xF7;                              // Pressure readings register       //
-  const uint8_t  BME280_TEMPDATA_REG     = 0xFA;                              // Temperature readings register    //
-  const uint8_t  BME280_HUMIDDATA_REG    = 0xFD;                              // Humidity readings register       //
   /*****************************************************************************************************************
   ** Declare enumerated types used in the class                                                                   **
   *****************************************************************************************************************/
@@ -91,30 +97,27 @@
     public:                                                                   // Publicly visible methods         //
       BME280_Class();                                                         // Class constructor                //
       ~BME280_Class();                                                        // Class destructor                 //
-      bool     begin(const uint8_t I2CAddress = BME280_ADDRESS );             // I2C Communications at address    //
-      uint8_t  mode();                                                        // return device mode               //
-      uint8_t  mode(const uint8_t operatingMode);                             // Set device mode                  //
+      bool     begin();                                                       // Start using I2C Communications   //
+      bool     begin(const uint8_t chipSelect);                               // Start using hardware SPI         //
+      bool     begin(const uint8_t chipSelect, const uint8_t mosi,            // Start using software SPI         //
+                     const uint8_t miso, const uint8_t sck);                  //                                  //
+      uint8_t  mode(const uint8_t operatingMode=UINT8_MAX);                   // Get or Set device mode           //
       bool     setOversampling(const uint8_t sensor, const uint8_t sampling); // Set enum sensorType Oversampling //
       uint8_t  getOversampling(const uint8_t sensor,                          // Get enum sensorType oversampling //
                                const bool    actual = false);                 // if "actual" set then return #    //
       uint8_t  iirFilter();                                                   // Return the IIR Filter setting    //
       uint8_t  iirFilter(const uint8_t iirFilterSetting );                    // Set IIR Filter and return value  //
-      uint8_t  inactiveTime();                                                // Return the inactive time setting //
-      uint8_t  inactiveTime(const uint8_t inactiveTimeSetting );              // Set inactive time & return value //
+      uint8_t  inactiveTime(const uint8_t inactiveTimeSetting=UINT8_MAX);     // Set inactive time & return value //
       uint32_t measurementTime(const uint8_t measureTimeSetting=1);           // Return measurement cycle time    //
       void     getSensorData(int32_t &temp, int32_t &hum, int32_t &press);    // get most recent readings         //
       void     reset();                                                       // Reset the BME280                 //
-    private:                                                                  // Private methods                  //
+    private:                                                                  // -------- Private methods ------- //
+      uint8_t  readByte(const uint8_t addr);                                  // Read byte from register address  //
       void     readSensors();                                                 // read the registers in one burst  //
-      uint8_t  readI2C(const uint8_t addr, uint8_t *pdata,                    // Read n-Bytes from I2C            //
-                       const uint8_t bytesToRead);                            //                                  //
-      uint8_t  readByte(const uint8_t addr);                                  // Read 1 byte from address on I2C  //
-      void     writeByte(const uint8_t addr, const uint8_t data);             // Write 1 byte at address to I2C   //
-      uint16_t readWord(const uint8_t addr);                                  // Read 2 bytes from address on I2C //
-      uint16_t readWordLE(const uint8_t addr);                                // Read 2 bytes Little-Endian on I2C//
-      void     writeWord(const uint8_t addr, const uint16_t data);            // Write 2 bytes at address to I2C  //
+      void     getCalibration();                                              // Load calibration from registers  //
       bool     _TransmissionStatus = false;                                   // I2C communications status        //
-      uint8_t  _I2CAddress         = BME280_ADDRESS;                          // Actual I2C address used w/default//
+      uint8_t  _I2CAddress         = 0;                                       // Default is no I2C address known  //
+      uint8_t  _cs,_sck,_mosi,_miso;                                          // Hardware and software SPI pins   //
       uint8_t  _cal_dig_H1,_cal_dig_H3;                                       // Declare all of the calibration   //
       int8_t   _cal_dig_H6         = 0;                                       // variables                        //
       uint16_t _cal_dig_T1,_cal_dig_P1;                                       //                                  //
@@ -122,7 +125,113 @@
                _cal_dig_P5,_cal_dig_P6,_cal_dig_P7,_cal_dig_P8,_cal_dig_P9,   //                                  //
                _cal_dig_H2,_cal_dig_H4,_cal_dig_H5;                           //                                  //
       uint8_t  _mode = UINT8_MAX;                                             // Last mode set                    //
-      int32_t  _tfine;                                                        // Global calibration value         //
-      int32_t  _Temperature,_Pressure,_Humidity;                              // Store the last readings          //
+      int32_t  _tfine,_Temperature,_Pressure,_Humidity;                       // Sensor global variables          //
+      /*************************************************************************************************************
+      ** Declare the getData and putData methods as template functions. All device I/O is done through these two  **
+      ** functions regardless of whether I2C, hardware SPI or software SPI is being used. The two functions are   **
+      ** designed so that only the address and a variable are passed in and the functions determine the size of   **
+      ** the parameter variable and reads or writes that many bytes. So if a read is called using a character     **
+      ** array[10] then 10 bytes are read, if called with a int8 then only one byte is read. The return value, if **
+      ** used, is the number of bytes read or written                                                             **
+      ** This is done by using template function definitions which need to be defined in this header file rather  **
+      ** than in the c++ program library file.                                                                    **
+      *************************************************************************************************************/
+      template< typename T > uint8_t &getData(const uint8_t addr,T &value) {  // method to write a structure      //
+        uint8_t* bytePtr    = (uint8_t*)&value;                               // Pointer to structure beginning   //
+        uint8_t  structSize = sizeof(T);                                      // Number of bytes in structure     //
+        uint8_t  timeoutI2C = I2C_READ_ATTEMPTS;                              // set tries before timeout         //
+        if (_I2CAddress) {                                                    // Using I2C if address is non-zero //
+          Wire.beginTransmission(_I2CAddress);                                // Address the I2C device           //
+          Wire.write(addr);                                                   // Send register address to read    //
+          _TransmissionStatus = Wire.endTransmission();                       // Close transmission               //
+          Wire.requestFrom(_I2CAddress, sizeof(T));                           // Request 1 byte of data           //
+          while(!Wire.available()&&timeoutI2C--!=0);                          // Wait until byte ready or timeout //
+          for (uint8_t i=0;i<structSize;i++) *bytePtr++ = Wire.read();        // loop for each byte to be read    //
+        } else {                                                              //                                  //
+          if (_sck==0) {                                                      // if sck is zero then hardware SPI //
+            SPI.beginTransaction(SPISettings(SPI_HERTZ,MSBFIRST,SPI_MODE0));  // Start the SPI transaction        //
+            digitalWrite(_cs, LOW);                                           // Tell BME280 to listen up         //
+            SPI.transfer(addr | 0x80);                                        // bit 7 is high, so read a byte    //
+            for (uint8_t i=0;i<structSize;i++) *bytePtr++ = SPI.transfer(0);  // loop for each byte to be read    //
+            digitalWrite(_cs, HIGH);                                          // Tell BME280 to stop listening    //
+            SPI.endTransaction();                                             // End the transaction              //
+          } else {                                                            // otherwise we are using soft SPI  //
+
+
+            int8_t i,j;                                                       // Loop variables                   //
+            uint8_t reply;                                                    // return byte for soft SPI xfer    //
+            digitalWrite(_cs, LOW);                                           // Tell BME280 to listen up         //
+            for (j=7; j>=0; j--) {                                            // First send the address byte      //
+              digitalWrite(_sck, LOW);                                        // set the clock signal             //
+              digitalWrite(_mosi, ((addr)|0x80)&(1<<j));                      // set the MOSI pin state           //
+              digitalWrite(_sck, HIGH);                                       // reset the clock signal           //
+            } // of for-next each bit                                         //                                  //
+            for (i=0;i<structSize;i++) {                                      // Loop for each byte to read       //
+              reply = 0;                                                      // reset our return byte            //
+              for (j=7; j>=0; j--) {                                          // Now read the data at that byte   //
+                reply <<= 1;                                                  // shift buffer one bit left        //
+                digitalWrite(_sck, LOW);                                      // set and reset the clock signal   //
+                digitalWrite(_sck, HIGH);                                     // pin to get the next MISO bit     //
+                if (digitalRead(_miso)) reply |= 1;                           // read the MISO bit, add to reply  //
+              } // of for-next each bit                                       //                                  //
+              *bytePtr++ = reply;                                             // Add byte just read to return data//
+            } // of for-next each byte to be read                             //                                  //            
+            digitalWrite(_cs, HIGH);                                          // Tell BME280 to stop listening    //
+
+
+
+
+          } // of  if-then-else we are using hardware SPI                     //                                  //
+        } // of if-then-else we are using I2C                                 //                                  //
+        return(structSize);                                                   // return the number of bytes read  //
+      } // of method getData()                                                //----------------------------------//
+      template<typename T>uint8_t &putData(const uint8_t addr,const T &value){// method to write a structure      //
+        const uint8_t* bytePtr = (const uint8_t*)&value;                      // Pointer to structure beginning   //
+        uint8_t  structSize   = sizeof(T);                                    // Number of bytes in structure     //
+        if (_I2CAddress) {                                                    // Using I2C if address is non-zero //
+          Wire.beginTransmission(_I2CAddress);                                // Address the I2C device           //
+          Wire.write(addr);                                                   // Send register address to write   //
+          for (uint8_t i=0;i<sizeof(T);i++) Wire.write(*bytePtr++);           // loop for each byte to be written //
+          _TransmissionStatus = Wire.endTransmission();                       // Close transmission               //
+        } else {                                                              //                                  //
+          if (_sck==0) {                                                      // if sck is zero then hardware SPI //
+            SPI.beginTransaction(SPISettings(SPI_HERTZ,MSBFIRST,SPI_MODE0));  // start the SPI transaction        //
+            digitalWrite(_cs, LOW);                                           // Tell BME280 to listen up         //
+            SPI.transfer(addr & ~0x80);                                       // bit 7 is low, so write a byte    //
+            for (uint8_t i=0;i<structSize;i++) SPI.transfer(*bytePtr++);      // loop for each byte to be written //
+            digitalWrite(_cs, HIGH);                                          // Tell BME280 to stop listening    //
+            SPI.endTransaction();                                             // End the transaction              //
+          } else {                                                            // Otherwise soft SPI is used       //
+
+
+            int8_t i,j;                                                       // Loop variables                   //
+            uint8_t reply;                                                    // return byte for soft SPI xfer    //
+            for (i=0;i<structSize;i++) {                                      // Loop for each byte to read       //
+              reply = 0;                                                      // reset our return byte            //
+              digitalWrite(_cs, LOW);                                         // Tell BME280 to listen up         //
+              for (j=7; j>=0; j--) {                                          // First send the address byte      //
+                digitalWrite(_sck, LOW);                                      // set the clock signal             //
+                digitalWrite(_mosi, (addr&~0x80)&(1<<j));                     // set the MOSI pin state           //
+                digitalWrite(_sck, HIGH);                                     // reset the clock signal           //
+              } // of for-next each bit                                       //                                  //
+              for (j=7; j>=0; j--) {                                          // Now read the data at that byte   //
+                reply <<= 1;                                                  // shift buffer one bit left        //
+                digitalWrite(_sck, LOW);                                      // set the clock signal             //
+                digitalWrite(_mosi, *bytePtr&(1<<j));                         // set the MOSI pin state           //
+                digitalWrite(_sck, HIGH);                                     // reset the clock signal           //
+              } // of for-next each bit                                       //                                  //
+              *bytePtr++;                                                     // go to next byte to write         //
+              digitalWrite(_cs, HIGH);                                        // Tell BME280 to stop listening    //
+            } // of for-next each byte to be read                             //                                  //
+
+
+
+
+
+          } // of  if-then-else we are using hardware SPI                     //                                  //
+        } // of if-then-else we are using I2C                                 //                                  //
+        return(structSize);                                                   // return number of bytes written   //
+      } // of method putData()                                                //----------------------------------//
   }; // of BME280 class definition                                            //                                  //
 #endif                                                                        //----------------------------------//
+
