@@ -33,6 +33,31 @@ bool BME280_Class::begin() {                                                  //
   _I2CAddress = 0;                                                            // Set to 0 to denote no I2C found  //
   return false;                                                               // return failure if we get here    //
 } // of method begin()                                                        //                                  //
+bool BME280_Class::begin(const uint8_t chipSelect) {                          // Use hardware SPI for comms       //
+  _cs = chipSelect;                                                           // Store value for future use       //
+  digitalWrite(_cs, HIGH);                                                    // High means ignore master         //
+  pinMode(_cs, OUTPUT);                                                       // Make the chip select pin output  //
+  SPI.begin();                                                                // Start hardware SPI               //  
+  if (readByte(BME280_CHIPID_REG)==BME280_CHIPID) {                           // check for correct chip id        //
+    getCalibration();                                                         // get the calibration values       //
+    return true;                                                              // return success                   //
+  } // of if-then device is really a BME280                                   //                                  //
+  return false;                                                               // return failure if we get here    //
+} // of method begin()                                                        //                                  //
+bool BME280_Class::begin(const uint8_t chipSelect, const uint8_t mosi,        // Start using software SPI         //
+                         const uint8_t miso, const uint8_t sck) {             //                                  //
+  _cs   = chipSelect;  _mosi = mosi; _miso = miso; _sck  = sck;               // Store SPI pins                   //
+  digitalWrite(_cs, HIGH);                                                    // High means ignore master         //
+  pinMode(_cs, OUTPUT);                                                       // Make the chip select pin output  //
+  pinMode(_sck, OUTPUT);                                                      // Make system clock pin output     //
+  pinMode(_mosi, OUTPUT);                                                     // Make master-out slave-in output  //
+  pinMode(_miso, INPUT);                                                      // Make master-in slave-out input   //
+  if (readByte(BME280_CHIPID_REG)==BME280_CHIPID) {                           // check for correct chip id        //
+    getCalibration();                                                         // get the calibration values       //
+    return true;                                                              // return success                   //
+  } // of if-then device is really a BME280                                   //                                  //
+  return false;                                                               // return failure if we get here    //
+} // of method begin()                                                        //                                  //
 /*******************************************************************************************************************
 ** Method getCalibration reads the calibration register data into local variables for use in converting readings  **
 *******************************************************************************************************************/
@@ -75,19 +100,14 @@ uint8_t BME280_Class::readByte(const uint8_t addr) {                          //
   return (returnValue);                                                       // Return byte just read            //
 } // of method readByte()                                                     //                                  //
 /*******************************************************************************************************************
-** Method mode() returns the current mode when called with no parameters, otherwise it sets the mode and returns  **
-** the mode that was set.                                                                                         **
-*******************************************************************************************************************/
-uint8_t BME280_Class::mode() {                                                // Return the mode                  //
-  uint8_t returnMode = readByte(BME280_CONTROL_REG) & B00000011;              // Read the 2 mode bits             //
-  return(returnMode);                                                         // Return the value read            //
-} // of method mode()                                                         //                                  //
-/*******************************************************************************************************************
-** Overloaded method mode() sets the current mode bits                                                            **
+** Method mode() sets the current mode bits or returns the current value if the parameter isn't used              **
 *******************************************************************************************************************/
 uint8_t BME280_Class::mode(const uint8_t operatingMode) {                     // Set device mode                  //
+  uint8_t controlRegister = readByte(BME280_CONTROL_REG);                     // Get the control register         //
+  if (operatingMode==UINT8_MAX) return(controlRegister&B00000011);            // Return setting if no parameter   //
   _mode = operatingMode&B00000011;                                            // Mask 2 bits in input parameter   //
-  putData(BME280_CONTROL_REG,(readByte(BME280_CONTROL_REG)&B11111100)|_mode); // Write value back to register     //
+  controlRegister = (controlRegister&B11111100) | _mode;                      // set the new value                //
+  putData(BME280_CONTROL_REG,controlRegister);                                // Write value back to register     //
   return(_mode);                                                              // and return that value            //
 } // of method mode()                                                         //                                  //
 /*******************************************************************************************************************
@@ -98,20 +118,16 @@ uint8_t BME280_Class::mode(const uint8_t operatingMode) {                     //
 bool BME280_Class::setOversampling(const uint8_t sensor,                      // Set enum sensorType to Oversample//
                                    const uint8_t sampling) {                  //                                  //
   if(sensor>=UnknownSensor || sampling>=UnknownOversample) return(false);     // return error if out of range     //
-  uint8_t tempControl = readByte(BME280_CONTROL_REG);                         // Read the control register        //
-  delay(60);                                                                  // Give the BME280 a bit of time    //
-  putData(BME280_CONTROL_REG,0);                                              // Put BME280 into sleep mode       //
+  uint8_t originalControl = readByte(BME280_CONTROL_REG);                     // Read the control register        //
+  while(readByte(BME280_CONTROL_REG)!=0) putData(BME280_CONTROL_REG,0);       // Put BME280 into sleep mode       //
   if(sensor==HumiditySensor) {                                                // If we have a humidity setting,   //
     putData(BME280_CONTROLHUMID_REG,sampling);                                // Update humidity register         //
-    delay(60);                                                                // Give the BME280 a bit of time    //
-    putData(BME280_CONTROL_REG,tempControl);                                  // Restore register values          //
-    delay(60);                                                                // Give the BME280 a bit of time    //
   } else if (sensor==TemperatureSensor) {                                     // otherwise if we have temperature //
-    tempControl = (tempControl&B00011111)|(sampling<<5);                      // Update the register bits         //
+    originalControl = (originalControl&B00011111)|(sampling<<5);              // Update the register bits         //
   } else {                                                                    //                                  //
-    tempControl = (tempControl&B11100011)|(sampling<<2);                      // Update the register bits         //
+    originalControl = (originalControl&B11100011)|(sampling<<2);              // Update the register bits         //
   } // of if-then-else temperature reading                                    //                                  //
-  putData(BME280_CONTROL_REG,tempControl);                                    // Write value to the register      //
+  putData(BME280_CONTROL_REG,originalControl);                                // Write value to the register      //
   return(true);                                                               // return success                   //
 } // of method setOversampling()                                              //                                  //
 /*******************************************************************************************************************
@@ -215,13 +231,12 @@ uint8_t BME280_Class::iirFilter(const uint8_t iirFilterSetting ) {            //
 ** the parameter to set the inactive time.                                                                        **
 *******************************************************************************************************************/
 uint8_t BME280_Class::inactiveTime(const uint8_t inactiveTimeSetting) {       // return the IIR Filter setting    //
-  uint8_t returnValue = readByte(BME280_CONFIG_REG)&B10001111;                // Get control reg, mask inactive   //
+  uint8_t returnValue = readByte(BME280_CONFIG_REG);                          // Get control register             //
   if (inactiveTimeSetting!=UINT8_MAX) {                                       // If we have a specified value     //
-    returnValue |= (inactiveTimeSetting&B00000111)<<5;                        // use 3 bits of inactiveTimeSetting//
+    returnValue = (returnValue&B00011111)|(inactiveTimeSetting<<5);           // use 3 bits of inactiveTimeSetting//
     putData(BME280_CONFIG_REG,returnValue);                                   // Write new control register value //
   } // of if-then we have specified a new setting                             //                                  //
-  returnValue = (returnValue>>5)&B00000111;                                   // Extract 3 setting bits           //
-  return(returnValue);                                                        // Return inactive time setting     //
+  return(returnValue>>5);                                                     // Return inactive time setting     //
 } // of method inactiveTime()                                                 //                                  //
 /*******************************************************************************************************************
 ** Method measurementTime() returns the time in microseconds for a measurement cycle with the current settings.   **
@@ -272,4 +287,6 @@ void BME280_Class::getSensorData(int32_t &temp, int32_t &hum, int32_t &press){//
 void BME280_Class::reset() {                                                  // reset device                     //
    putData(BME280_SOFTRESET_REG,BME280_SOFTWARE_CODE);                        // writing code here resets device  //
    if (_I2CAddress) begin();                                                  // Start device again if I2C        //
+   else if(_sck) begin(_cs,_mosi,_miso,_sck);                                 // Use software serial again        //
+   else begin(_cs);                                                           // otherwise it must be hardware SPI//
 } // of method reset()                                                        //                                  //
