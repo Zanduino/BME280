@@ -31,39 +31,45 @@ bool BME280_Class::begin(const uint8_t I2CAddress ) {                         //
   uint8_t errorCode = Wire.endTransmission();                                 // See if there's a device present  //
   if (errorCode == 0) {                                                       // If we have a device at address,  //
     if (readByte(BME280_CHIPID_REG)==BME280_CHIPID) {                         // and it returns correct chip id,  //
-      getData(BME280_T1_REG,_cal_dig_T1);                                     // Retrieve calibration values      //
-      getData(BME280_T2_REG,_cal_dig_T2);                                     //                                  //
-      getData(BME280_T3_REG,_cal_dig_T3);                                     //                                  //
-      getData(BME280_P1_REG,_cal_dig_P1);                                     //                                  //
-      getData(BME280_P2_REG,_cal_dig_P2);                                     //                                  //
-      getData(BME280_P3_REG,_cal_dig_P3);                                     //                                  //
-      getData(BME280_P4_REG,_cal_dig_P4);                                     //                                  //
-      getData(BME280_P5_REG,_cal_dig_P5);                                     //                                  //
-      getData(BME280_P6_REG,_cal_dig_P6);                                     //                                  //
-      getData(BME280_P7_REG,_cal_dig_P7);                                     //                                  //
-      getData(BME280_P8_REG,_cal_dig_P8);                                     //                                  //
-      getData(BME280_P9_REG,_cal_dig_P9);                                     //                                  //
-      getData(BME280_H1_REG,_cal_dig_H1);                                     //                                  //
-      getData(BME280_H2_REG,_cal_dig_H2);                                     //                                  //
-      getData(BME280_H3_REG,_cal_dig_P3);                                     //                                  //
-      uint8_t tempVar;                                                        // Single-Byte temporary variable   //
-      getData(BME280_H4_REG,tempVar);                                         // Retrieve byte                    //
-      _cal_dig_H4 = tempVar<<4;                                               //                                  //
-      getData(BME280_H4_REG+1,tempVar);                                       // Retrieve byte                    //
-      _cal_dig_H4 |= tempVar&0xF;                                             //                                  //
-      getData(BME280_H5_REG+2,tempVar);                                       // Retrieve byte                    //
-      _cal_dig_H5 = tempVar<<4;                                               //                                  //
-      getData(BME280_H5_REG,tempVar);                                         // Retrieve byte                    //
-      _cal_dig_H5 |= tempVar>>4;                                              //                                  //
-      getData(BME280_H6_REG,_cal_dig_H6);                                     //                                  //
-      _cal_dig_H5 = (readByte(BME280_H5_REG+1)<<4)|                           //                                  //
-      (readByte(BME280_H5_REG)>>4);                                           //                                  //
-      _cal_dig_H6 = readByte(BME280_H6_REG);                                  //                                  //
+      getCalibration();                                                       // get the calibration values       //
       return true;                                                            // return success                   //
     } // of if-then device is really a BME280                                 //                                  //
   } // of if-then device detected                                             //                                  //
   return false;                                                               // return failure if we get here    //
 } // of method begin()                                                        //                                  //
+/*******************************************************************************************************************
+** Method getCalibration reads the calibration register data into local variables for use in converting readings  **
+*******************************************************************************************************************/
+void BME280_Class::getCalibration() {                                         // Read and store registers         //
+  getData(BME280_T1_REG,_cal_dig_T1);                                         // Retrieve calibration values      //
+  getData(BME280_T2_REG,_cal_dig_T2);                                         //                                  //
+  getData(BME280_T3_REG,_cal_dig_T3);                                         //                                  //
+  getData(BME280_P1_REG,_cal_dig_P1);                                         //                                  //
+  getData(BME280_P2_REG,_cal_dig_P2);                                         //                                  //
+  getData(BME280_P3_REG,_cal_dig_P3);                                         //                                  //
+  getData(BME280_P4_REG,_cal_dig_P4);                                         //                                  //
+  getData(BME280_P5_REG,_cal_dig_P5);                                         //                                  //
+  getData(BME280_P6_REG,_cal_dig_P6);                                         //                                  //
+  getData(BME280_P7_REG,_cal_dig_P7);                                         //                                  //
+  getData(BME280_P8_REG,_cal_dig_P8);                                         //                                  //
+  getData(BME280_P9_REG,_cal_dig_P9);                                         //                                  //
+  getData(BME280_H1_REG,_cal_dig_H1);                                         //                                  //
+  getData(BME280_H2_REG,_cal_dig_H2);                                         //                                  //
+  getData(BME280_H3_REG,_cal_dig_P3);                                         //                                  //
+  uint8_t tempVar;                                                            // Single-Byte temporary variable   //
+  getData(BME280_H4_REG,tempVar);                                             // Retrieve byte                    //
+  _cal_dig_H4 = tempVar<<4;                                                   //                                  //
+  getData(BME280_H4_REG+1,tempVar);                                           // Retrieve byte                    //
+  _cal_dig_H4 |= tempVar&0xF;                                                 //                                  //
+  getData(BME280_H5_REG+2,tempVar);                                           // Retrieve byte                    //
+  _cal_dig_H5 = tempVar<<4;                                                   //                                  //
+  getData(BME280_H5_REG,tempVar);                                             // Retrieve byte                    //
+  _cal_dig_H5 |= tempVar>>4;                                                  //                                  //
+  getData(BME280_H6_REG,_cal_dig_H6);                                         //                                  //
+  _cal_dig_H5 = (readByte(BME280_H5_REG+1)<<4)|                               //                                  //
+                (readByte(BME280_H5_REG)>>4);                                 //                                  //
+  _cal_dig_H6 = readByte(BME280_H6_REG);                                      //                                  //
+} // of method getCalibration()                                               //                                  //
 /*******************************************************************************************************************
 ** Method readByte is an interlude function to the getData() function. Reads 1 byte from the given address        **
 *******************************************************************************************************************/

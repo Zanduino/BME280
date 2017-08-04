@@ -11,10 +11,9 @@
 ** hardware used to develop this library is a breakout board from AdaFruit which is well-documented at            **
 ** https://learn.adafruit.com/adafruit-bme280-humidity-barometric-pressure-temperature-sensor-breakout.           **
 **                                                                                                                **
-**                                                                                                                **
 ** This example program initializes the BME280 to use I2C for communications. The library does not using floating **
 ** point mathematics to save on computation space and time, the values for Temperature, Pressure and Humidity are **
-** returned in hecto-units, e.g. a Temperature reading of "2731" means "27.31" degrees Celsius. The display in    **
+** returned in deci-units, e.g. a Temperature reading of "2731" means "27.31" degrees Celsius. The display in     **
 ** the example program uses floating point for demonstration purposes only.  Note that the temperature reading is **
 ** generally higher than the ambient temperature due to die and PCB temperature and self-heating of the element.  **
 **                                                                                                                **
@@ -33,6 +32,7 @@
 **                                                                                                                **
 ** Vers.  Date       Developer           Comments                                                                 **
 ** ====== ========== =================== ======================================================================== **
+** 1.0.1  2017-08-04 Arnd@SV-Zanshin.Com Made output cleaner and toggled humidity readings                        **
 ** 1.0.0  2017-08-02 Arnd@SV-Zanshin.Com Cleaned up code prior to first release                                   **
 ** 1.0.0b 2017-07-30 Arnd@SV-Zanshin.Com Initial coding                                                           **
 **                                                                                                                **
@@ -104,19 +104,31 @@ void loop() {                                                                 //
   BME280.getSensorData(temperature,humidity,pressure);                        // Get most recent readings         //
   Serial.print(F("Temperature: "));                                           //                                  //
   Serial.print(temperature/100.0);                                            // Temperature in deci-degrees      //
-  Serial.print(F("C Humidity: "));                                            //                                  //
-  Serial.print(humidity/100.0);                                               // Humidity in deci-percent         //
-  Serial.print(F("% Pressure: "));                                            //                                  //
+  Serial.print(F("C "));                                                      //                                  //
+  if (BME280.getOversampling(HumiditySensor)!=0) {                            //                                  //
+    Serial.print(F("Humidity: "));                                            //                                  //
+    Serial.print(humidity/100.0);                                             // Humidity in deci-percent         //
+    Serial.print(F("% "));                                                    //                                  //
+  } // of if-then humidity sensing turned off                                 //                                  //
+  Serial.print(F("Pressure: "));                                              //                                  //
   Serial.print(pressure/100.0);                                               // Pressure in Pascals              //
   Serial.print(F("hPa Altitude: "));                                          //                                  //
   Serial.print(altitude());                                                   //                                  //
   Serial.println(F("m"));                                                     //                                  //
   delay(5000);                                                                // Wait a bit before repeating      //
-  if (loopCounter++==3) {                                                     // if in first loop iteration, then //
-    Serial.println(F("- Turning off Humidity sensing"));                      //                                  //
+  if (++loopCounter%10==0) {                                                  // Every 10th reading               //
+    Serial.print(F("\n- Turning "));                                          //                                  //
+    if (BME280.getOversampling(HumiditySensor)==0) {                          //                                  //
+      BME280.setOversampling(HumiditySensor,Oversample16);                    // Turn humidity sensing on         //
+      Serial.print(F("ON"));                                                  //                                  //
+    } else  {                                                                 //                                  //
+      BME280.setOversampling(HumiditySensor,SensorOff);                       // No longer interested in humidity //
+      Serial.print(F("OFF"));                                                 //                                  //
+    } // of if-then-else humidity sensing turned off                          //                                  //
+    Serial.println(F(" humidity sensing"));                                   //                                  //
     BME280.setOversampling(HumiditySensor,SensorOff);                         // No longer interested in humidity //
     Serial.print(F("- Each measurement cycle will now take "));               //                                  //
-    Serial.print(BME280.measurementTime(MaximumMeasure)/1000);                // returns microseconds             //
-    Serial.println(F("ms.\n\n"));                                             //                                  //
+    Serial.print(BME280.measurementTime(MaximumMeasure)/1000.0);              // returns microseconds             //
+    Serial.println(F("ms.\n"));                                               //                                  //
   } // of if-then first loop iteration                                        //                                  //
 } // of method loop()                                                         //----------------------------------//

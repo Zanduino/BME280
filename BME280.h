@@ -106,9 +106,10 @@
       uint32_t measurementTime(const uint8_t measureTimeSetting=1);           // Return measurement cycle time    //
       void     getSensorData(int32_t &temp, int32_t &hum, int32_t &press);    // get most recent readings         //
       void     reset();                                                       // Reset the BME280                 //
-    private:                                                                  // Private methods                  //
-      uint8_t  readByte(const uint8_t addr);                                  // Read 1 byte from register addr-  //
+    private:                                                                  // -------- Private methods ------- //
+      uint8_t  readByte(const uint8_t addr);                                  // Read byte from register address  //
       void     readSensors();                                                 // read the registers in one burst  //
+      void     getCalibration();                                              // Load calibration from registers  //
       bool     _TransmissionStatus = false;                                   // I2C communications status        //
       uint8_t  _I2CAddress         = BME280_ADDRESS;                          // Actual I2C address used w/default//
       uint8_t  _cal_dig_H1,_cal_dig_H3;                                       // Declare all of the calibration   //
@@ -121,16 +122,19 @@
       int32_t  _tfine;                                                        // Global calibration value         //
       int32_t  _Temperature,_Pressure,_Humidity;                              // Store the last readings          //
       /*************************************************************************************************************
-      ** Declare the getData and putData methods as template functions. This needs to be done in the header       **
-      ** rather than in the library code file. The template function definitions are quite handy, as it allows a  **
-      ** generic read and write function to be written which allows using any data type as the source/target as   **
-      ** opposed to having to code one function for each different possible data type.                            **
+      ** Declare the getData and putData methods as template functions. All device I/O is done through these two  **
+      ** functions regardless of whether I2C, hardware SPI or software SPI is being used. The two functions are   **
+      ** designed so thatonly the address and a variable are passed in and the functions determine the size of    **
+      ** the parameter variable and reads or writes that many bytes. So if a read is called using a character     **
+      ** array[10] then 10 bytes are read, if called with a int8 then only one byte is read.                      **
+      ** This is done by using template function definitions which need to be defined in this header file rather  **
+      ** than in the c++ program library file.                                                                    **
       *************************************************************************************************************/
       template< typename T > uint8_t &getData(const uint8_t addr,T &value) {  // method to write a structure      //
         uint8_t* bytePtr  = (uint8_t*)&value;                                 // Pointer to structure beginning   //
         uint8_t  structSize = sizeof(T);                                      // Number of bytes in structure     //
         Wire.beginTransmission(_I2CAddress);                                  // Address the I2C device           //
-        Wire.write(addr);                                                     // Send the register address to read//
+        Wire.write(addr);                                                     // Send register address to read    //
         _TransmissionStatus = Wire.endTransmission();                         // Close transmission               //
         delayMicroseconds(BME280_I2C_DELAY);                                  // delay required for sync          //
         Wire.requestFrom(_I2CAddress, sizeof(T));                             // Request 1 byte of data           //
@@ -142,7 +146,7 @@
         const uint8_t* bytePtr = (const uint8_t*)&value;                      // Pointer to structure beginning   //
         uint8_t  structSize = sizeof(T);                                      // Number of bytes in structure     //
         Wire.beginTransmission(_I2CAddress);                                  // Address the I2C device           //
-        Wire.write(addr);                                                     // Send the register address to read//
+        Wire.write(addr);                                                     // Send register address to write   //
         for (uint8_t i=0;i<sizeof(T);i++) Wire.write(*bytePtr++);             // loop for each byte to be written //
         _TransmissionStatus = Wire.endTransmission();                         // Close transmission               //
         return(structSize);                                                   // return number of bytes written   //
