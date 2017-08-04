@@ -212,15 +212,13 @@ void BME280_Class::readSensors() {                                            //
   _Humidity = (uint32_t)(i>>12)*100/1024;                                     // in percent * 100                 //
 } // of method readSensors()                                                  //                                  //
 /*******************************************************************************************************************
-** Overloaded method iirFilter() when called with no parameters returns the current IIR Filter setting, otherwise **
-** when called with one parameter will set the IIR filter value and return the new setting                        **
+** Method iirFilter() when called with no parameters returns the current IIR Filter setting, otherwise when       **
+** called with one parameter will set the IIR filter value and return the new setting                             **
 *******************************************************************************************************************/
-uint8_t BME280_Class::iirFilter() {                                           // return the IIR Filter setting    //
-  uint8_t returnValue = (readByte(BME280_CONFIG_REG)>>2)&B00000111;           // Get 3 bits for the IIR Filter    //
-  return(returnValue);                                                        // Return IIR Filter setting        //
-} // of method iirFilter()                                                    //                                  //
 uint8_t BME280_Class::iirFilter(const uint8_t iirFilterSetting ) {            // set the IIR Filter value         //
-  uint8_t returnValue = readByte(BME280_CONFIG_REG)&B11110001;                // Get control reg, mask IIR bits   //
+  uint8_t returnValue = readByte(BME280_CONFIG_REG);                          // Get control register byte        //
+  if (iirFilterSetting==UINT8_MAX) return((returnValue>>2)&B00000111);        // return the current setting       //
+  returnValue = returnValue&B11110001;                                        // Get control reg, mask IIR bits   //
   returnValue |= (iirFilterSetting&B00000111)<<2;                             // use 3 bits of iirFilterSetting   //
   putData(BME280_CONFIG_REG,returnValue);                                     // Write new control register value //
   returnValue = (returnValue>>2)&B00000111;                                   // Extract IIR filter setting       //

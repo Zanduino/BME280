@@ -28,6 +28,7 @@
 **                                                                                                                **
 ** Vers.  Date       Developer           Comments                                                                 **
 ** ====== ========== =================== ======================================================================== **
+** 1.0.2  2017-08-04 Arnd@SV-Zanshin.Com Combined iirFilter() overloaded functions                                **
 ** 1.0.1  2017-08-03 Arnd@SV-Zanshin.Com All read/writes now use getData() and putData() templates in this header **
 **                                       changed begin() method for I2C to search for first instance of BME280    **
 **                                       Added hardware and software SPI functionality and tested it              **
@@ -105,8 +106,7 @@
       bool     setOversampling(const uint8_t sensor, const uint8_t sampling); // Set enum sensorType Oversampling //
       uint8_t  getOversampling(const uint8_t sensor,                          // Get enum sensorType oversampling //
                                const bool    actual = false);                 // if "actual" set then return #    //
-      uint8_t  iirFilter();                                                   // Return the IIR Filter setting    //
-      uint8_t  iirFilter(const uint8_t iirFilterSetting );                    // Set IIR Filter and return value  //
+      uint8_t  iirFilter(const uint8_t iirFilterSetting=UINT8_MAX);           // Set IIR Filter and return value  //
       uint8_t  inactiveTime(const uint8_t inactiveTimeSetting=UINT8_MAX);     // Set inactive time & return value //
       uint32_t measurementTime(const uint8_t measureTimeSetting=1);           // Return measurement cycle time    //
       void     getSensorData(int32_t &temp, int32_t &hum, int32_t &press);    // get most recent readings         //
@@ -156,8 +156,6 @@
             digitalWrite(_cs, HIGH);                                          // Tell BME280 to stop listening    //
             SPI.endTransaction();                                             // End the transaction              //
           } else {                                                            // otherwise we are using soft SPI  //
-
-
             int8_t i,j;                                                       // Loop variables                   //
             uint8_t reply;                                                    // return byte for soft SPI xfer    //
             digitalWrite(_cs, LOW);                                           // Tell BME280 to listen up         //
@@ -175,12 +173,8 @@
                 if (digitalRead(_miso)) reply |= 1;                           // read the MISO bit, add to reply  //
               } // of for-next each bit                                       //                                  //
               *bytePtr++ = reply;                                             // Add byte just read to return data//
-            } // of for-next each byte to be read                             //                                  //            
+            } // of for-next each byte to be read                             //                                  //
             digitalWrite(_cs, HIGH);                                          // Tell BME280 to stop listening    //
-
-
-
-
           } // of  if-then-else we are using hardware SPI                     //                                  //
         } // of if-then-else we are using I2C                                 //                                  //
         return(structSize);                                                   // return the number of bytes read  //
@@ -202,8 +196,6 @@
             digitalWrite(_cs, HIGH);                                          // Tell BME280 to stop listening    //
             SPI.endTransaction();                                             // End the transaction              //
           } else {                                                            // Otherwise soft SPI is used       //
-
-
             int8_t i,j;                                                       // Loop variables                   //
             uint8_t reply;                                                    // return byte for soft SPI xfer    //
             for (i=0;i<structSize;i++) {                                      // Loop for each byte to read       //
@@ -223,11 +215,6 @@
               *bytePtr++;                                                     // go to next byte to write         //
               digitalWrite(_cs, HIGH);                                        // Tell BME280 to stop listening    //
             } // of for-next each byte to be read                             //                                  //
-
-
-
-
-
           } // of  if-then-else we are using hardware SPI                     //                                  //
         } // of if-then-else we are using I2C                                 //                                  //
         return(structSize);                                                   // return number of bytes written   //
