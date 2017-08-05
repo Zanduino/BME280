@@ -119,7 +119,7 @@ void loop() {                                                                 //
   Serial.print(F("hPa Altitude: "));                                          //                                  //
   Serial.print(altitude());                                                   //                                  //
   Serial.println(F("m"));                                                     //                                  //
-  delay(1000);                                                                // Wait a bit before repeating      //
+  delay(5000);                                                                // Wait a bit before repeating      //
   if (++loopCounter%10==0) {                                                  // Every 10th reading               //
     Serial.print(F("\n- Turning "));                                          //                                  //
     if (BME280.getOversampling(HumiditySensor)==0) {                          //                                  //
