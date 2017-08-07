@@ -139,7 +139,7 @@
       template< typename T > uint8_t &getData(const uint8_t addr,T &value) {  // method to write a structure      //
         uint8_t* bytePtr    = (uint8_t*)&value;                               // Pointer to structure beginning   //
         uint8_t  structSize = sizeof(T);                                      // Number of bytes in structure     //
-        uint8_t  timeoutI2C = I2C_READ_ATTEMPTS;                              // set tries before timeout         //
+        uint16_t timeoutI2C = I2C_READ_ATTEMPTS;                              // set tries before timeout         //
         if (_I2CAddress) {                                                    // Using I2C if address is non-zero //
           Wire.beginTransmission(_I2CAddress);                                // Address the I2C device           //
           Wire.write(addr);                                                   // Send register address to read    //
