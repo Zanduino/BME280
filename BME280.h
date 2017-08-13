@@ -28,6 +28,7 @@
 **                                                                                                                **
 ** Vers.  Date       Developer           Comments                                                                 **
 ** ====== ========== =================== ======================================================================== **
+** 1.0.3a 2017-08-13 Arnd@SV-Zanshin.Com Removed extraneous I2C wait loop according to bug report #2              **
 ** 1.0.2  2017-08-04 Arnd@SV-Zanshin.Com Combined iirFilter() overloaded functions                                **
 ** 1.0.1  2017-08-03 Arnd@SV-Zanshin.Com All read/writes now use getData() and putData() templates in this header **
 **                                       changed begin() method for I2C to search for first instance of BME280    **
@@ -45,7 +46,6 @@
   /*****************************************************************************************************************
   ** Declare constants used in the class                                                                          **
   *****************************************************************************************************************/
-  const uint8_t  I2C_READ_ATTEMPTS       = 1000;                              // Attempts to read before timeout  //
   const uint32_t SPI_HERTZ               = 500000;                            // SPI speed in Hz                  //
   const uint8_t  BME280_CHIPID_REG       = 0xD0;                              // Chip-Id register                 //
   const uint8_t  BME280_CHIPID           = 0x60;                              // Hard-coded value 0x60 for BME280 //
@@ -139,13 +139,12 @@
       template< typename T > uint8_t &getData(const uint8_t addr,T &value) {  // method to write a structure      //
         uint8_t* bytePtr    = (uint8_t*)&value;                               // Pointer to structure beginning   //
         uint8_t  structSize = sizeof(T);                                      // Number of bytes in structure     //
-        uint16_t timeoutI2C = I2C_READ_ATTEMPTS;                              // set tries before timeout         //
         if (_I2CAddress) {                                                    // Using I2C if address is non-zero //
           Wire.beginTransmission(_I2CAddress);                                // Address the I2C device           //
           Wire.write(addr);                                                   // Send register address to read    //
           _TransmissionStatus = Wire.endTransmission();                       // Close transmission               //
           Wire.requestFrom(_I2CAddress, sizeof(T));                           // Request 1 byte of data           //
-          while(!Wire.available()&&timeoutI2C--!=0);                          // Wait until byte ready or timeout //
+          structSize = Wire.available();                                      // Use the actual number of bytes   //
           for (uint8_t i=0;i<structSize;i++) *bytePtr++ = Wire.read();        // loop for each byte to be read    //
         } else {                                                              //                                  //
           if (_sck==0) {                                                      // if sck is zero then hardware SPI //
