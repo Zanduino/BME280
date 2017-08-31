@@ -26,16 +26,17 @@
 ** GNU General Public License for more details. You should have received a copy of the GNU General Public License **
 ** along with this program.  If not, see <http://www.gnu.org/licenses/>.                                          **
 **                                                                                                                **
-** Vers.  Date       Developer           Comments                                                                 **
-** ====== ========== =================== ======================================================================== **
-** 1.0.3a 2017-08-13 Arnd@SV-Zanshin.Com Removed extraneous I2C wait loop according to bug report #2              **
-** 1.0.2  2017-08-04 Arnd@SV-Zanshin.Com Combined iirFilter() overloaded functions                                **
-** 1.0.1  2017-08-03 Arnd@SV-Zanshin.Com All read/writes now use getData() and putData() templates in this header **
-**                                       changed begin() method for I2C to search for first instance of BME280    **
-**                                       Added hardware and software SPI functionality and tested it              **
-** 1.0.0  2017-08-03 Arnd@SV-Zanshin.Com Initial version with just I2C connectivity                               **
-** 1.0.0b 2017-07-31 Arnd@SV-Zanshin.Com Continued development                                                    **
-** 1.0.0a 2017-07-30 Arnd@SV-Zanshin.Com Started coding                                                           **
+** Vers.  Date       Developer                     Comments                                                       **
+** ====== ========== ============================= ============================================================== **
+** 1.0.3a 2017-08-13 https://github.com/SV-Zanshin Removed extraneous I2C wait loop according to bug report #2    **
+** 1.0.2  2017-08-04 https://github.com/SV-Zanshin Combined iirFilter() overloaded functions                      **
+** 1.0.1  2017-08-03 https://github.com/SV-Zanshin All read/writes now use getData() and putData() templates in   **
+**                                                 this header. Changed begin() method for I2C to search for first**
+**                                                 instance of BME280. Added hardware and software SPI function-  **
+**                                                 ality and tested it                                            **
+** 1.0.0  2017-08-03 https://github.com/SV-Zanshin Initial version with just I2C connectivity                     **
+** 1.0.0b 2017-07-31 https://github.com/SV-Zanshin Continued development                                          **
+** 1.0.0a 2017-07-30 https://github.com/SV-Zanshin Started coding                                                 **
 **                                                                                                                **
 *******************************************************************************************************************/
 #include "Arduino.h"                                                          // Arduino data type definitions    //
@@ -220,4 +221,3 @@
       } // of method putData()                                                //----------------------------------//
   }; // of BME280 class definition                                            //                                  //
 #endif                                                                        //----------------------------------//
-
