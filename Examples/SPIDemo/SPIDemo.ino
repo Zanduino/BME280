@@ -31,9 +31,9 @@
 ** GNU General Public License for more details. You should have received a copy of the GNU General Public License **
 ** along with this program.  If not, see <http://www.gnu.org/licenses/>.                                          **
 **                                                                                                                **
-** Vers.  Date       Developer           Comments                                                                 **
-** ====== ========== =================== ======================================================================== **
-** 1.0.0  2017-08-04 Arnd@SV-Zanshin.Com Cloned from I2CDemo.ino program                                          **
+** Vers.  Date       Developer                     Comments                                                       **
+** ====== ========== ============================= ============================================================== **
+** 1.0.0  2017-08-04 https://github.com/SV-Zanshin Cloned from I2CDemo.ino program                                **
 **                                                                                                                **
 *******************************************************************************************************************/
 #include <BME280.h>                                                          // Include the BME280 Sensor library //
