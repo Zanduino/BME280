@@ -69,7 +69,7 @@ void setup() {                                                                //
   Serial.println(F("Starting I2CDemo example program for BME280"));           //                                  //
   Serial.print(F("- Initializing BME280 sensor\n"));                          //                                  //
                                                                               //==================================//
-  while (!BME280.begin()) {                                                   // Start BME280 using I2C protocol  //
+  while (!BME280.begin(I2C_FAST_MODE_PLUS)) {                                 // Start BME280 using I2C protocol  //
                                                                               //==================================//
     Serial.println(F("-  Unable to find BME280. Waiting 3 seconds."));        // Show error text                  //
     delay(3000);                                                              // wait three seconds               //
