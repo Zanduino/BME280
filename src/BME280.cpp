@@ -22,7 +22,7 @@ BME280_Class::~BME280_Class() {}                                              //
 bool BME280_Class::begin() {                                                  // Find I2C device                  //
   begin(I2C_STANDARD_MODE);                                                   // Initialize I2c with slow speed   //
 } // of method begin()                                                        //                                  //
-bool BME280_Class::begin(const uint16_t i2cSpeed) {                           // Find I2C device                  //
+bool BME280_Class::begin(const uint32_t i2cSpeed) {                           // Find I2C device                  //
   Wire.begin();                                                               // Start I2C as master device       //
   Wire.setClock(i2cSpeed);                                                    // Set I2C bus speed                //
   for(_I2CAddress=0;_I2CAddress<127;_I2CAddress++) {                          // loop all possible addresses      //

@@ -28,6 +28,7 @@
 **                                                                                                                **
 ** Vers.  Date       Developer                     Comments                                                       **
 ** ====== ========== ============================= ============================================================== **
+** 1.0.4  2018-07-22 https://github.com/SV-Zanshin Corrected I2C Datatypes                                        **
 ** 1.0.4  2018-06-30 https://github.com/SV-Zanshin Issue #6 - Allow faster I2C bus speeds                         **
 ** 1.0.3a 2017-08-13 https://github.com/SV-Zanshin Removed extraneous I2C wait loop according to bug report #2    **
 ** 1.0.2  2017-08-04 https://github.com/SV-Zanshin Combined iirFilter() overloaded functions                      **
@@ -48,41 +49,44 @@
   /*****************************************************************************************************************
   ** Declare constants used in the class                                                                          **
   *****************************************************************************************************************/
-  const uint16_t I2C_STANDARD_MODE       =  100000;                           // Default normal I2C comms speed   //
-  const uint16_t I2C_FAST_MODE           =  400000;                           // Fast mode                        //
-  const uint16_t I2C_FAST_MODE_PLUS      = 1000000;                           // Really fast mode                 //
-  const uint16_t I2C_HIGH_SPEED_MODE     = 3400000;                           // Turbo mode                       //
-  const uint32_t SPI_HERTZ               =  500000;                           // SPI speed in Hz                  //
-  const uint8_t  BME280_CHIPID_REG       =    0xD0;                           // Chip-Id register                 //
-  const uint8_t  BME280_CHIPID           =    0x60;                           // Hard-coded value 0x60 for BME280 //
-  const uint8_t  BME280_SOFTRESET_REG    =    0xE0;                           // Reset when 0xB6 is written here  //
-  const uint8_t  BME280_CONTROLHUMID_REG =    0xF2;                           // Humidity control register        //
-  const uint8_t  BME280_STATUS_REG       =    0xF3;                           // Device status register           //
-  const uint8_t  BME280_CONTROL_REG      =    0xF4;                           // Device control register          //
-  const uint8_t  BME280_CONFIG_REG       =    0xF5;                           // Device configuration register    //
-  const uint8_t  BME280_PRESSUREDATA_REG =    0xF7;                           // Pressure readings register       //
-  const uint8_t  BME280_TEMPDATA_REG     =    0xFA;                           // Temperature readings register    //
-  const uint8_t  BME280_HUMIDDATA_REG    =    0xFD;                           // Humidity readings register       //
-  const uint8_t  BME280_SOFTWARE_CODE    =    0xB6;                           // Reset on this written to resetreg//
+  #ifndef I2C_MODES                                                           // I2C related constants            //
+    #define I2C_MODES                                                         // Guard code to prevent multiple   //
+    const uint32_t I2C_STANDARD_MODE       =  100000;                         // Default normal I2C 100KHz speed  //
+    const uint32_t I2C_FAST_MODE           =  400000;                         // Fast mode                        //
+    const uint32_t I2C_FAST_MODE_PLUS_MODE = 1000000;                         // Really fast mode                 //
+    const uint32_t I2C_HIGH_SPEED_MODE     = 3400000;                         // Turbo mode                       //
+  #endif                                                                      //----------------------------------//
+  const uint32_t SPI_HERTZ                 =  500000;                         // SPI speed in Hz                  //
+  const uint8_t  BME280_CHIPID_REG         =    0xD0;                         // Chip-Id register                 //
+  const uint8_t  BME280_CHIPID             =    0x60;                         // Hard-coded value 0x60 for BME280 //
+  const uint8_t  BME280_SOFTRESET_REG      =    0xE0;                         // Reset when 0xB6 is written here  //
+  const uint8_t  BME280_CONTROLHUMID_REG   =    0xF2;                         // Humidity control register        //
+  const uint8_t  BME280_STATUS_REG         =    0xF3;                         // Device status register           //
+  const uint8_t  BME280_CONTROL_REG        =    0xF4;                         // Device control register          //
+  const uint8_t  BME280_CONFIG_REG         =    0xF5;                         // Device configuration register    //
+  const uint8_t  BME280_PRESSUREDATA_REG   =    0xF7;                         // Pressure readings register       //
+  const uint8_t  BME280_TEMPDATA_REG       =    0xFA;                         // Temperature readings register    //
+  const uint8_t  BME280_HUMIDDATA_REG      =    0xFD;                         // Humidity readings register       //
+  const uint8_t  BME280_SOFTWARE_CODE      =    0xB6;                         // Reset on this written to resetreg//
                                                                               //----------------------------------//
-  const uint8_t  BME280_T1_REG           =    0x88;                           // Declare BME280 registers for the //
-  const uint8_t  BME280_T2_REG           =    0x8A;                           // calibration data used to convert //
-  const uint8_t  BME280_T3_REG           =    0x8C;                           // the raw measurements into metric //
-  const uint8_t  BME280_P1_REG           =    0x8E;                           // units                            //
-  const uint8_t  BME280_P2_REG           =    0x90;                           //                                  //
-  const uint8_t  BME280_P3_REG           =    0x92;                           //                                  //
-  const uint8_t  BME280_P4_REG           =    0x94;                           //                                  //
-  const uint8_t  BME280_P5_REG           =    0x96;                           //                                  //
-  const uint8_t  BME280_P6_REG           =    0x98;                           //                                  //
-  const uint8_t  BME280_P7_REG           =    0x9A;                           //                                  //
-  const uint8_t  BME280_P8_REG           =    0x9C;                           //                                  //
-  const uint8_t  BME280_P9_REG           =    0x9E;                           //                                  //
-  const uint8_t  BME280_H1_REG           =    0xA1;                           //                                  //
-  const uint8_t  BME280_H2_REG           =    0xE1;                           //                                  //
-  const uint8_t  BME280_H3_REG           =    0xE3;                           //                                  //
-  const uint8_t  BME280_H4_REG           =    0xE4;                           //                                  //
-  const uint8_t  BME280_H5_REG           =    0xE5;                           //                                  //
-  const uint8_t  BME280_H6_REG           =    0xE7;                           //----------------------------------//
+  const uint8_t  BME280_T1_REG             =    0x88;                         // Declare BME280 registers for the //
+  const uint8_t  BME280_T2_REG             =    0x8A;                         // calibration data used to convert //
+  const uint8_t  BME280_T3_REG             =    0x8C;                         // the raw measurements into metric //
+  const uint8_t  BME280_P1_REG             =    0x8E;                         // units                            //
+  const uint8_t  BME280_P2_REG             =    0x90;                         //                                  //
+  const uint8_t  BME280_P3_REG             =    0x92;                         //                                  //
+  const uint8_t  BME280_P4_REG             =    0x94;                         //                                  //
+  const uint8_t  BME280_P5_REG             =    0x96;                         //                                  //
+  const uint8_t  BME280_P6_REG             =    0x98;                         //                                  //
+  const uint8_t  BME280_P7_REG             =    0x9A;                         //                                  //
+  const uint8_t  BME280_P8_REG             =    0x9C;                         //                                  //
+  const uint8_t  BME280_P9_REG             =    0x9E;                         //                                  //
+  const uint8_t  BME280_H1_REG             =    0xA1;                         //                                  //
+  const uint8_t  BME280_H2_REG             =    0xE1;                         //                                  //
+  const uint8_t  BME280_H3_REG             =    0xE3;                         //                                  //
+  const uint8_t  BME280_H4_REG             =    0xE4;                         //                                  //
+  const uint8_t  BME280_H5_REG             =    0xE5;                         //                                  //
+  const uint8_t  BME280_H6_REG             =    0xE7;                         //----------------------------------//
   /*****************************************************************************************************************
   ** Declare enumerated types used in the class                                                                   **
   *****************************************************************************************************************/
@@ -105,7 +109,7 @@
       BME280_Class();                                                         // Class constructor                //
       ~BME280_Class();                                                        // Class destructor                 //
       bool     begin();                                                       // Start using I2C Communications   //
-      bool     begin(const uint16_t i2cSpeed);                                // I2C with a non-default speed     //
+      bool     begin(const uint32_t i2cSpeed);                                // I2C with a non-default speed     //
       bool     begin(const uint8_t chipSelect);                               // Start using hardware SPI         //
       bool     begin(const uint8_t chipSelect, const uint8_t mosi,            // Start using software SPI         //
                      const uint8_t miso, const uint8_t sck);                  //                                  //
