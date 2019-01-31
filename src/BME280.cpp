@@ -20,7 +20,7 @@ BME280_Class::~BME280_Class() {}                                              //
 ** the address.                                                                                                   **
 *******************************************************************************************************************/
 bool BME280_Class::begin() {                                                  // Find I2C device                  //
-  begin(I2C_STANDARD_MODE);                                                   // Initialize I2c with slow speed   //
+  return begin(I2C_STANDARD_MODE);                                            // Initialize I2c with slow speed   //
 } // of method begin()                                                        //                                  //
 bool BME280_Class::begin(const uint32_t i2cSpeed) {                           // Find I2C device                  //
   Wire.begin();                                                               // Start I2C as master device       //
@@ -166,7 +166,7 @@ void BME280_Class::readSensors() {                                            //
   uint8_t registerBuffer[8];                                                  // declare array to store registers //
   int64_t i, j, p;                                                            // Work variables                   //
   if((_mode==ForcedMode||_mode==ForcedMode2)&&mode()==SleepMode) mode(_mode); // Force a reading if necessary     //
-  while(readByte(BME280_STATUS_REG)&B00001001!=0);                            // wait for measurement to complete //
+  while((readByte(BME280_STATUS_REG)&B00001001) != 0 );                       // wait for measurement to complete //
   getData(BME280_PRESSUREDATA_REG,registerBuffer);                            // read all 8 bytes in one go       //
                     //*******************************//                       //                                  //
                     // First compute the temperature //                       //                                  //
@@ -212,7 +212,6 @@ void BME280_Class::readSensors() {                                            //
   i = (i-(((((i>>15)*(i>>15))>>7)*((int32_t)_cal_dig_H1))>>4));               //                                  //
   i = (i < 0) ? 0 : i;                                                        //                                  //
   i = (i > 419430400) ? 419430400 : i;                                        //                                  //
-  float h = (i>>12);                                                          //                                  //
   _Humidity = (uint32_t)(i>>12)*100/1024;                                     // in percent * 100                 //
 } // of method readSensors()                                                  //                                  //
 /*******************************************************************************************************************
