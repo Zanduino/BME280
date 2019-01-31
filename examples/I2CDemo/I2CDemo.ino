@@ -70,7 +70,7 @@ BME280_Class   BME280; ///< Create an instance of the BME280 class
 float altitude(const float seaLevel = 1013.25)
 {
   static float Altitude;
-  int32_t temp, hum, press,;
+  int32_t temp, hum, press;
   BME280.getSensorData(temp, hum, press); // Get the most recent values from the device
   Altitude = 44330.0*(1.0 - pow(((float)press / 100.0) / seaLevel, 0.1903)); // Convert into altitude in meters
   return(Altitude);
