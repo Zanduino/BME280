@@ -209,9 +209,9 @@ uint8_t BME280_Class::getOversampling(const uint8_t sensor, const bool    actual
     returnValue = (readByte(BME280_CONTROL_REG)>>2)&B00000111;
   if (actual) // If the actual flag has been set then return the oversampling
   {
-    if      (returnValue==3) returnValue =  4
-    else if (returnValue==4) returnValue =  8
-    else if (returnValue>4)  returnValue = 16;
+    if      (returnValue == 3) returnValue = 4;
+    else if (returnValue == 4) returnValue = 8;
+    else if (returnValue>4)    returnValue = 16;
   } // of if-then we return the actual count
   return(returnValue); // return oversampling bits
 } // of method getOversampling()
