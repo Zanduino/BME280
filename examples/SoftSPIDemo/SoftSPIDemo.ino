@@ -1,6 +1,6 @@
-/*! @file SPIDemo.ino
+/*! @file SoftSPIDemo.ino
 
-@section SPIDemo_intro_section Description
+@section SoftSPIDemo_intro_section Description
 
 Example program for using the Bosch BME280 sensor. The sensor measures temperature, pressure and humidity and is
 described at https://www.bosch-sensortec.com/bst/products/all_products/bme280. The datasheet is available from
@@ -26,7 +26,7 @@ for the BME180 on page 16 of http://www.adafruit.com/datasheets/BST-BMP180-DS000
 floating-point function in the library which may not be used but which would use space, an example altitude
 computation function has been added to this example program to show how it might be done.
 
-@section SPIDemolicense GNU General Public License v3.0
+@section SoftSPIDemolicense GNU General Public License v3.0
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General
 Public License as published by the Free Software Foundation, either version 3 of the License, or (at your
@@ -35,11 +35,11 @@ WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
 GNU General Public License for more details. You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-@section SPIDemoauthor Author
+@section SoftSPIDemoauthor Author
 
 Written by Arnd\@SV-Zanshin
 
-@section SPIDemoversions Changelog
+@section SoftSPIDemoversions Changelog
 
 Version | Date       | Developer                     | Comments
 ------- | ---------- | ----------------------------- | ---------------------------------------------------
