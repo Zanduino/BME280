@@ -71,6 +71,7 @@ const uint8_t  SPI_MISO_PIN = 12; ///< Master-in, Slave-out Pin
 /*******************************************************************************************************************
 ** Declare global variables and instantiate classes                                                               **
 *******************************************************************************************************************/
+/*! Instantiate the class */
 BME280_Class   BME280;   // Create an instance of the BME280 //
 
 /*!
