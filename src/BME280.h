@@ -157,87 +157,120 @@ functionality and tested it
       ** This is done by using template function definitions which need to be defined in this header file rather  **
       ** than in the c++ program library file.                                                                    **
       *************************************************************************************************************/
-      template< typename T > uint8_t &getData(const uint8_t addr,T &value) {  // method to write a structure      //
-        uint8_t* bytePtr    = (uint8_t*)&value;                               // Pointer to structure beginning   //
-        static uint8_t  structSize = sizeof(T);                               // Number of bytes in structure     //
-        if (_I2CAddress) {                                                    // Using I2C if address is non-zero //
-          Wire.beginTransmission(_I2CAddress);                                // Address the I2C device           //
-          Wire.write(addr);                                                   // Send register address to read    //
-          _TransmissionStatus = Wire.endTransmission();                       // Close transmission               //
-          Wire.requestFrom(_I2CAddress, sizeof(T));                           // Request 1 byte of data           //
-          structSize = Wire.available();                                      // Use the actual number of bytes   //
-          for (uint8_t i=0;i<structSize;i++) *bytePtr++ = Wire.read();        // loop for each byte to be read    //
-        } else {                                                              //                                  //
-          if (_sck==0) {                                                      // if sck is zero then hardware SPI //
-            SPI.beginTransaction(SPISettings(SPI_HERTZ,MSBFIRST,SPI_MODE0));  // Start the SPI transaction        //
-            digitalWrite(_cs, LOW);                                           // Tell BME280 to listen up         //
-            SPI.transfer(addr | 0x80);                                        // bit 7 is high, so read a byte    //
-            for (uint8_t i=0;i<structSize;i++) *bytePtr++ = SPI.transfer(0);  // loop for each byte to be read    //
-            digitalWrite(_cs, HIGH);                                          // Tell BME280 to stop listening    //
-            SPI.endTransaction();                                             // End the transaction              //
-          } else {                                                            // otherwise we are using soft SPI  //
-            int8_t i,j;                                                       // Loop variables                   //
-            uint8_t reply;                                                    // return byte for soft SPI xfer    //
-            digitalWrite(_cs, LOW);                                           // Tell BME280 to listen up         //
-            for (j=7; j>=0; j--) {                                            // First send the address byte      //
-              digitalWrite(_sck, LOW);                                        // set the clock signal             //
-              digitalWrite(_mosi, ((addr)|0x80)&(1<<j));                      // set the MOSI pin state           //
-              digitalWrite(_sck, HIGH);                                       // reset the clock signal           //
-            } // of for-next each bit                                         //                                  //
-            for (i=0;i<structSize;i++) {                                      // Loop for each byte to read       //
-              reply = 0;                                                      // reset our return byte            //
-              for (j=7; j>=0; j--) {                                          // Now read the data at that byte   //
-                reply <<= 1;                                                  // shift buffer one bit left        //
-                digitalWrite(_sck, LOW);                                      // set and reset the clock signal   //
-                digitalWrite(_sck, HIGH);                                     // pin to get the next MISO bit     //
-                if (digitalRead(_miso)) reply |= 1;                           // read the MISO bit, add to reply  //
-              } // of for-next each bit                                       //                                  //
-              *bytePtr++ = reply;                                             // Add byte just read to return data//
-            } // of for-next each byte to be read                             //                                  //
-            digitalWrite(_cs, HIGH);                                          // Tell BME280 to stop listening    //
-          } // of  if-then-else we are using hardware SPI                     //                                  //
-        } // of if-then-else we are using I2C                                 //                                  //
-        return(structSize);                                                   // return the number of bytes read  //
-      } // of method getData()                                                //----------------------------------//
-      template<typename T>uint8_t &putData(const uint8_t addr,const T &value){// method to write a structure      //
-        const  uint8_t* bytePtr    = (const uint8_t*)&value;                  // Pointer to structure beginning   //
-        static uint8_t  structSize = sizeof(T);                               // Number of bytes in structure     //
-        if (_I2CAddress) {                                                    // Using I2C if address is non-zero //
-          Wire.beginTransmission(_I2CAddress);                                // Address the I2C device           //
-          Wire.write(addr);                                                   // Send register address to write   //
-          for (uint8_t i=0;i<sizeof(T);i++) Wire.write(*bytePtr++);           // loop for each byte to be written //
-          _TransmissionStatus = Wire.endTransmission();                       // Close transmission               //
-        } else {                                                              //                                  //
-          if (_sck==0) {                                                      // if sck is zero then hardware SPI //
-            SPI.beginTransaction(SPISettings(SPI_HERTZ,MSBFIRST,SPI_MODE0));  // start the SPI transaction        //
-            digitalWrite(_cs, LOW);                                           // Tell BME280 to listen up         //
-            SPI.transfer(addr & ~0x80);                                       // bit 7 is low, so write a byte    //
-            for (uint8_t i=0;i<structSize;i++) SPI.transfer(*bytePtr++);      // loop for each byte to be written //
-            digitalWrite(_cs, HIGH);                                          // Tell BME280 to stop listening    //
-            SPI.endTransaction();                                             // End the transaction              //
-          } else {                                                            // Otherwise soft SPI is used       //
-            int8_t i,j;                                                       // Loop variables                   //
-            uint8_t reply;                                                    // return byte for soft SPI xfer    //
-            for (i=0;i<structSize;i++) {                                      // Loop for each byte to read       //
-              reply = 0;                                                      // reset our return byte            //
-              digitalWrite(_cs, LOW);                                         // Tell BME280 to listen up         //
-              for (j=7; j>=0; j--) {                                          // First send the address byte      //
-                digitalWrite(_sck, LOW);                                      // set the clock signal             //
-                digitalWrite(_mosi, (addr&~0x80)&(1<<j));                     // set the MOSI pin state           //
-                digitalWrite(_sck, HIGH);                                     // reset the clock signal           //
-              } // of for-next each bit                                       //                                  //
-              for (j=7; j>=0; j--) {                                          // Now read the data at that byte   //
-                reply <<= 1;                                                  // shift buffer one bit left        //
-                digitalWrite(_sck, LOW);                                      // set the clock signal             //
-                digitalWrite(_mosi, *bytePtr&(1<<j));                         // set the MOSI pin state           //
-                digitalWrite(_sck, HIGH);                                     // reset the clock signal           //
-              } // of for-next each bit                                       //                                  //
-              *bytePtr++;                                                     // go to next byte to write         //
-              digitalWrite(_cs, HIGH);                                        // Tell BME280 to stop listening    //
-            } // of for-next each byte to be read                             //                                  //
-          } // of  if-then-else we are using hardware SPI                     //                                  //
-        } // of if-then-else we are using I2C                                 //                                  //
-        return(structSize);                                                   // return number of bytes written   //
-      } // of method putData()                                                //----------------------------------//
-  }; // of BME280 class definition                                            //                                  //
-#endif                                                                        //----------------------------------//
+      /*!
+          @brief     Template for reading from the I2C or SPI bus
+          @details   As a template it can support compile-time data type definitions
+          @param[in] addr Memory address
+          @param[in] value Data Type "T" to read
+          @return    Size of data read
+      */
+      template< typename T > uint8_t &getData(const uint8_t addr,T &value)
+      {
+        uint8_t* bytePtr    = (uint8_t*)&value; // Pointer to structure beginning
+        static uint8_t  structSize = sizeof(T); // Number of bytes in structure
+        if (_I2CAddress) // If I2C address is non-zero then assume I2C bus
+        {
+          Wire.beginTransmission(_I2CAddress);          // Address the I2C device
+          Wire.write(addr);                             // Send register address to read
+          _TransmissionStatus = Wire.endTransmission(); // Close transmission
+          Wire.requestFrom(_I2CAddress, sizeof(T));     // Request 1 byte of data
+          structSize = Wire.available();                // Use the actual number of bytes
+          for (uint8_t i=0;i<structSize;i++) *bytePtr++ = Wire.read(); // loop for each byte to be read
+        }
+        else // Otherwise use SPI bus
+        {
+          if (_sck==0) // if sck is zero then hardware SPI
+          {
+            SPI.beginTransaction(SPISettings(SPI_HERTZ,MSBFIRST,SPI_MODE0));  // Start the SPI transaction
+            digitalWrite(_cs, LOW);                                           // Tell BME280 to listen up
+            SPI.transfer(addr | 0x80);                                        // bit 7 is high, so read a byte
+            for (uint8_t i=0;i<structSize;i++) *bytePtr++ = SPI.transfer(0);  // loop for each byte to be read
+            digitalWrite(_cs, HIGH);                                          // Tell BME280 to stop listening
+            SPI.endTransaction();                                             // End the transaction
+          } 
+          else // otherwise we are using software SPI
+          {
+            
+            int8_t i,j;
+            uint8_t reply;
+            digitalWrite(_cs, LOW);                      // Tell BME280 to listen up
+            for (j=7; j>=0; j--) {                       // First send the address byte
+              digitalWrite(_sck, LOW);                   // set the clock signal
+              digitalWrite(_mosi, ((addr)|0x80)&(1<<j)); // set the MOSI pin state
+              digitalWrite(_sck, HIGH);                  // reset the clock signal
+            } // of for-next each bit
+            for (i=0;i<structSize;i++)
+            {
+              reply = 0;           // reset our return byte
+              for (j=7; j>=0; j--) // Now read the data at that byte
+              {
+                reply <<= 1;                        // shift buffer one bit left        //
+                digitalWrite(_sck, LOW);            // set and reset the clock signal   //
+                digitalWrite(_sck, HIGH);           // pin to get the next MISO bit     //
+                if (digitalRead(_miso)) reply |= 1; // read the MISO bit, add to reply  //
+              } // of for-next each bit
+              *bytePtr++ = reply; // Add byte just read to return data
+            } // of for-next each byte to be read
+            digitalWrite(_cs, HIGH); // Tell BME280 to stop listening
+          } // of  if-then-else we are using hardware SPI
+        } // of if-then-else we are using I2C
+        return(structSize); // return the number of bytes read
+      } // of method getData()
+      
+      /*!
+      *  @brief    Template for writing to the I2C or SPI bus
+      * @details   As a template it can support compile-time data type definitions
+      * @param[in] addr Memory address
+      * @param[in] value Data Type "T" to read
+      * @return    Size of data written
+      */      template<typename T>uint8_t &putData(const uint8_t addr,const T &value)
+      {
+        uint8_t* bytePtr    = (const uint8_t*)&value;               // Pointer to structure beginning
+        static uint8_t  structSize = sizeof(T);                     // Number of bytes in structure
+        if (_I2CAddress) // Use I2C protocol if address is non-zero
+        {
+          Wire.beginTransmission(_I2CAddress);                      // Address the I2C device
+          Wire.write(addr);                                         // Send register address to write
+          for (uint8_t i=0;i<sizeof(T);i++) Wire.write(*bytePtr++); // loop for each byte to be written
+          _TransmissionStatus = Wire.endTransmission();             // Close transmission
+        }
+        else
+        {
+          if (_sck==0) // if sck is zero then use hardware SPI
+          {
+            SPI.beginTransaction(SPISettings(SPI_HERTZ,MSBFIRST,SPI_MODE0)); // start the SPI transaction
+            digitalWrite(_cs, LOW);                                          // Tell BME280 to listen up
+            SPI.transfer(addr & ~0x80);                                      // bit 7 is low, so write a byte
+            for (uint8_t i=0;i<structSize;i++) SPI.transfer(*bytePtr++);     // loop for each byte to be written
+            digitalWrite(_cs, HIGH);                                         // Tell BME280 to stop listening
+            SPI.endTransaction();                                            // End the transaction
+          }
+          else // Otherwise use software SPI 
+          {
+            int8_t i,j;
+            uint8_t reply;
+            for (i=0;i<structSize;i++) 
+            {
+              reply = 0;                                  // reset our return byte
+              digitalWrite(_cs, LOW);                     // Tell BME280 to listen up
+              for (j=7; j>=0; j--) {                      // First send the address byte
+                digitalWrite(_sck, LOW);                  // set the clock signal
+                digitalWrite(_mosi, (addr&~0x80)&(1<<j)); // set the MOSI pin state
+                digitalWrite(_sck, HIGH);                 // reset the clock signal
+              } // of for-next each bit
+              for (j=7; j>=0; j--) // Now read the data at that byte
+              {
+                reply <<= 1;                          // shift buffer one bit left
+                digitalWrite(_sck, LOW);              // set the clock signal
+                digitalWrite(_mosi, *bytePtr&(1<<j)); // set the MOSI pin state
+                digitalWrite(_sck, HIGH);             // reset the clock signal
+              } // of for-next each bit
+              *bytePtr++; // go to next byte to write
+              digitalWrite(_cs, HIGH);  // Tell BME280 to stop listening
+            } // of for-next each byte to be read
+          } // of  if-then-else we are using hardware SPI
+        } // of if-then-else we are using I2C
+        return(structSize); // return number of bytes written
+      } // of method putData()
+  }; // of BME280 class definition
+#endif
