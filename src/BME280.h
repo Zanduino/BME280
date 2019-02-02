@@ -225,7 +225,7 @@ functionality and tested it
       * @return    Size of data written
       */      template<typename T>uint8_t &putData(const uint8_t addr,const T &value)
       {
-        uint8_t* bytePtr    = (uint8_t*)&value; // Pointer to structure beginning
+        const uint8_t* bytePtr    = (const uint8_t*)&value; // Pointer to structure beginning
         static uint8_t  structSize = sizeof(T); // Number of bytes in structure
         if (_I2CAddress) // Use I2C protocol if address is non-zero
         {
@@ -265,7 +265,11 @@ functionality and tested it
                 digitalWrite(_mosi, *bytePtr&(1<<j)); // set the MOSI pin state
                 digitalWrite(_sck, HIGH);             // reset the clock signal
               } // of for-next each bit
-              uint8_t* dummy = *bytePtr++; // go to next byte to write (Dummy assignment due to ESP32 compiler error
+              #ifdef ESP32
+                static uint8_t dummyVar = *bytePtr++; // go to next byte to write (dummyVar only required for ESP32)
+              #else
+                *bytePtr++; // go to next byte to write
+              #endif
               digitalWrite(_cs, HIGH);  // Tell BME280 to stop listening
             } // of for-next each byte to be read
           } // of  if-then-else we are using hardware SPI
