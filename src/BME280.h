@@ -265,7 +265,7 @@ functionality and tested it
                 digitalWrite(_mosi, *bytePtr&(1<<j)); // set the MOSI pin state
                 digitalWrite(_sck, HIGH);             // reset the clock signal
               } // of for-next each bit
-              *bytePtr++; // go to next byte to write
+              uint8_t* dummy = *bytePtr++; // go to next byte to write (Dummy assignment due to ESP32 compiler error
               digitalWrite(_cs, HIGH);  // Tell BME280 to stop listening
             } // of for-next each byte to be read
           } // of  if-then-else we are using hardware SPI
