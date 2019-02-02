@@ -225,8 +225,8 @@ functionality and tested it
       * @return    Size of data written
       */      template<typename T>uint8_t &putData(const uint8_t addr,const T &value)
       {
-        uint8_t* bytePtr    = (const uint8_t*)&value;               // Pointer to structure beginning
-        static uint8_t  structSize = sizeof(T);                     // Number of bytes in structure
+        uint8_t* bytePtr    = (uint8_t*)&value; // Pointer to structure beginning
+        static uint8_t  structSize = sizeof(T); // Number of bytes in structure
         if (_I2CAddress) // Use I2C protocol if address is non-zero
         {
           Wire.beginTransmission(_I2CAddress);                      // Address the I2C device
