@@ -159,7 +159,7 @@ functionality and tested it
       *************************************************************************************************************/
       template< typename T > uint8_t &getData(const uint8_t addr,T &value) {  // method to write a structure      //
         uint8_t* bytePtr    = (uint8_t*)&value;                               // Pointer to structure beginning   //
-        uint8_t  structSize = sizeof(T);                                      // Number of bytes in structure     //
+        static uint8_t  structSize = sizeof(T);                               // Number of bytes in structure     //
         if (_I2CAddress) {                                                    // Using I2C if address is non-zero //
           Wire.beginTransmission(_I2CAddress);                                // Address the I2C device           //
           Wire.write(addr);                                                   // Send register address to read    //
@@ -200,8 +200,8 @@ functionality and tested it
         return(structSize);                                                   // return the number of bytes read  //
       } // of method getData()                                                //----------------------------------//
       template<typename T>uint8_t &putData(const uint8_t addr,const T &value){// method to write a structure      //
-        const uint8_t* bytePtr = (const uint8_t*)&value;                      // Pointer to structure beginning   //
-        uint8_t  structSize   = sizeof(T);                                    // Number of bytes in structure     //
+        const  uint8_t* bytePtr    = (const uint8_t*)&value;                  // Pointer to structure beginning   //
+        static uint8_t  structSize = sizeof(T);                               // Number of bytes in structure     //
         if (_I2CAddress) {                                                    // Using I2C if address is non-zero //
           Wire.beginTransmission(_I2CAddress);                                // Address the I2C device           //
           Wire.write(addr);                                                   // Send register address to write   //
