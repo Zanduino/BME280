@@ -1,56 +1,59 @@
-/*! @file BME280.h
-
- @mainpage Arduino Library Header to access the Bosch BME280 sensor
-
- @section intro_section Description
-
-Class definition header for the Bosch BME280 temperature / humidity / pressure sensor. The sensor is described at 
-https://www.bosch-sensortec.com/bst/products/all_products/bme280 and the datasheet is available from Bosch at
-https://ae-bst.resource.bosch.com/media/_tech/media/datasheets/BST-BME280_DS001-11.pdf \n\n
-
-The BME280 can use either SPI or I2C for communications. The initial library version 1.0.0 defines only I2C while 
-subsequent versions also allow SPI communications\n\n
-
-The most recent version of the library is available at https://github.com/SV-Zanshin/BME280 and extensive 
-documentation of the library as well as example programs are described in the project's wiki pages located at
-https://github.com/SV-Zanshin/BME280/wiki. \n\n
-
-The BME280 is a very small package so it is unlikely for an Arduino hobbyist to play around with directly, the
-hardware used to develop this library is a breakout board from AdaFruit which is well-documented at
-https://learn.adafruit.com/adafruit-bme280-humidity-barometric-pressure-temperature-sensor-breakout.
-
-@section license GNU General Public License v3.0
-This program is free software: you can redistribute it and/or modify it under the terms of the GNU General
-Public License as published by the Free Software Foundation, either version 3 of the License, or (at your
-option) any later version. This program is distributed in the hope that it will be useful, but WITHOUT ANY
-WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details. You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-@section author Author
-
-Written by Arnd\@SV-Zanshin
-
-@section versions Changelog
-
-Version| Date       | Developer                     | Comments
------- | ---------- | ----------------------------- | --------
-1.0.3  | 2019-01-31 | https://github.com/SV-Zanshin | Issue #7 - Corrected documentation to Doxygen style
-1.0.2  | 2018-07-22 | https://github.com/SV-Zanshin | Corrected I2C Datatypes
-1.0.2  | 2018-06-30 | https://github.com/SV-Zanshin | Issue #6 - Allow faster I2C bus speeds
-1.0.2a | 2017-08-13 | https://github.com/SV-Zanshin | Removed extraneous I2C wait loop according to bug report #2
-1.0.2  | 2017-08-04 | https://github.com/SV-Zanshin | Combined iirFilter() overloaded functions
-1.0.1  | 2017-08-03 | https://github.com/SV-Zanshin | All read/writes now use getData() and putData() templates in this
-header. Changed begin() method for I2C to search for first instance of BME280. Added hardware and software SPI 
-functionality and tested it
-1.0.0  | 2017-08-03 | https://github.com/SV-Zanshin | Initial version with just I2C connectivity
-1.0.0b | 2017-07-31 | https://github.com/SV-Zanshin | Continued development
-1.0.0a | 2017-07-30 | https://github.com/SV-Zanshin | Started coding
-*/
+/***************************************************************************************************************//*!
+* @file BME280.h
+*
+*  @mainpage Arduino Library Header to access the Bosch BME280 sensor
+*
+*  @section intro_section Description
+*
+* Class definition header for the Bosch BME280 temperature / humidity / pressure sensor. The sensor is described at
+* https://www.bosch-sensortec.com/bst/products/all_products/bme280 and the datasheet is available from Bosch at
+* https://ae-bst.resource.bosch.com/media/_tech/media/datasheets/BST-BME280_DS001-11.pdf \n\n
+*
+* The BME280 can use either SPI or I2C for communications. The initial library version 1.0.0 defines only I2C while
+* subsequent versions also allow SPI communications\n\n
+*
+* The most recent version of the library is available at https://github.com/SV-Zanshin/BME280 and extensive
+* documentation of the library as well as example programs are described in the project's wiki pages located at
+* https://github.com/SV-Zanshin/BME280/wiki. \n\n
+*
+* The BME280 is a very small package so it is unlikely for an Arduino hobbyist to play around with directly, the
+* hardware used to develop this library is a breakout board from AdaFruit which is well-documented at
+* https://learn.adafruit.com/adafruit-bme280-humidity-barometric-pressure-temperature-sensor-breakout.
+*
+* @section license GNU General Public License v3.0
+*
+* This program is free software: you can redistribute it and/or modify it under the terms of the GNU General
+* Public License as published by the Free Software Foundation, either version 3 of the License, or (at your
+* option) any later version. This program is distributed in the hope that it will be useful, but WITHOUT ANY
+* WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details. You should have received a copy of the GNU General Public License
+* along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*
+* @section author Author
+*
+* Written by Arnd\@SV-Zanshin
+*
+* @section versions Changelog
+*
+* Version| Date       | Developer                     | Comments
+* ------ | ---------- | ----------------------------- | --------
+* 1.0.3  | 2019-01-31 | https://github.com/SV-Zanshin | Issue #7 - Corrected documentation to Doxygen style
+* 1.0.2  | 2018-07-22 | https://github.com/SV-Zanshin | Corrected I2C Datatypes
+* 1.0.2  | 2018-06-30 | https://github.com/SV-Zanshin | Issue #6 - Allow faster I2C bus speeds
+* 1.0.2a | 2017-08-13 | https://github.com/SV-Zanshin | Removed extraneous I2C wait loop according to bug report #2
+* 1.0.2  | 2017-08-04 | https://github.com/SV-Zanshin | Combined iirFilter() overloaded functions
+* 1.0.1  | 2017-08-03 | https://github.com/SV-Zanshin | All read/writes now use getData() and putData() templates 
+*                                                       in this header. Changed begin() method for I2C to search for
+*                                                       first instance of BME280. Added hardware and software SPI
+*                                                       functionality and tested it
+* 1.0.0  | 2017-08-03 | https://github.com/SV-Zanshin | Initial version with just I2C connectivity
+* 1.0.0b | 2017-07-31 | https://github.com/SV-Zanshin | Continued development
+* 1.0.0a | 2017-07-30 | https://github.com/SV-Zanshin | Started coding
+*******************************************************************************************************************/
 #include "Arduino.h" // Arduino data type definitions
 #include <Wire.h>    // Standard I2C "Wire" library
 #include <SPI.h>     // Standard SPI library
-#ifndef BME280_h     // Guard code definition
+#ifndef BME280_h
 /* @brief Define guard code to prevent multiple inclusions */
 #define BME280_h
   /*****************************************************************************************************************
@@ -77,23 +80,24 @@ functionality and tested it
   const uint8_t  BME280_HUMIDDATA_REG      =    0xFD; ///< Humidity readings register
   const uint8_t  BME280_SOFTWARE_CODE      =    0xB6; ///< Reset on this written to resetreg
   const uint8_t  BME280_T1_REG             =    0x88; ///< Declare BME280 registers for the
-  const uint8_t  BME280_T2_REG             =    0x8A; ///< cal data used to convert the raw measurements into metric units
-  const uint8_t  BME280_T3_REG             =    0x8C; ///< cal data used to convert the raw measurements into metric units
-  const uint8_t  BME280_P1_REG             =    0x8E; ///< cal data used to convert the raw measurements into metric units
-  const uint8_t  BME280_P2_REG             =    0x90; ///< cal data used to convert the raw measurements into metric units
-  const uint8_t  BME280_P3_REG             =    0x92; ///< cal data used to convert the raw measurements into metric units
-  const uint8_t  BME280_P4_REG             =    0x94; ///< cal data used to convert the raw measurements into metric units
-  const uint8_t  BME280_P5_REG             =    0x96; ///< cal data used to convert the raw measurements into metric units
-  const uint8_t  BME280_P6_REG             =    0x98; ///< cal data used to convert the raw measurements into metric units
-  const uint8_t  BME280_P7_REG             =    0x9A; ///< cal data used to convert the raw measurements into metric units
-  const uint8_t  BME280_P8_REG             =    0x9C; ///< cal data used to convert the raw measurements into metric units
-  const uint8_t  BME280_P9_REG             =    0x9E; ///< cal data used to convert the raw measurements into metric units
-  const uint8_t  BME280_H1_REG             =    0xA1; ///< cal data used to convert the raw measurements into metric units
-  const uint8_t  BME280_H2_REG             =    0xE1; ///< cal data used to convert the raw measurements into metric units
-  const uint8_t  BME280_H3_REG             =    0xE3; ///< cal data used to convert the raw measurements into metric units
-  const uint8_t  BME280_H4_REG             =    0xE4; ///< cal data used to convert the raw measurements into metric units
-  const uint8_t  BME280_H5_REG             =    0xE5; ///< cal data used to convert the raw measurements into metric units
-  const uint8_t  BME280_H6_REG             =    0xE7; ///< cal data used to convert the raw measurements into metric units
+  const uint8_t  BME280_T2_REG             =    0x8A; ///< calibration data register
+  const uint8_t  BME280_T3_REG             =    0x8C; ///< calibration data register
+  const uint8_t  BME280_P1_REG             =    0x8E; ///< calibration data register
+  const uint8_t  BME280_P2_REG             =    0x90; ///< calibration data register
+  const uint8_t  BME280_P3_REG             =    0x92; ///< calibration data register
+  const uint8_t  BME280_P4_REG             =    0x94; ///< calibration data register
+  const uint8_t  BME280_P5_REG             =    0x96; ///< calibration data register
+  const uint8_t  BME280_P6_REG             =    0x98; ///< calibration data register
+  const uint8_t  BME280_P7_REG             =    0x9A; ///< calibration data register
+  const uint8_t  BME280_P8_REG             =    0x9C; ///< calibration data register
+  const uint8_t  BME280_P9_REG             =    0x9E; ///< calibration data register
+  const uint8_t  BME280_H1_REG             =    0xA1; ///< calibration data register
+  const uint8_t  BME280_H2_REG             =    0xE1; ///< calibration data register
+  const uint8_t  BME280_H3_REG             =    0xE3; ///< calibration data register
+  const uint8_t  BME280_H4_REG             =    0xE4; ///< calibration data register
+  const uint8_t  BME280_H5_REG             =    0xE5; ///< calibration data register
+  const uint8_t  BME280_H6_REG             =    0xE7; ///< calibration data register
+
   /*****************************************************************************************************************
   ** Declare enumerated types used in the class                                                                   **
   *****************************************************************************************************************/
@@ -114,6 +118,7 @@ functionality and tested it
   /*!
   * @class BME280_Class
   * @brief BME280 Class definition
+  * @details BME280 Class forward declarations for methods and public/private variable declarations
   */
   class BME280_Class 
   {
@@ -204,10 +209,10 @@ functionality and tested it
               reply = 0;           // reset our return byte
               for (j=7; j>=0; j--) // Now read the data at that byte
               {
-                reply <<= 1;                        // shift buffer one bit left        //
-                digitalWrite(_sck, LOW);            // set and reset the clock signal   //
-                digitalWrite(_sck, HIGH);           // pin to get the next MISO bit     //
-                if (digitalRead(_miso)) reply |= 1; // read the MISO bit, add to reply  //
+                reply <<= 1;                        // shift buffer one bit left
+                digitalWrite(_sck, LOW);            // set and reset the clock signal
+                digitalWrite(_sck, HIGH);           // pin to get the next MISO bit
+                if (digitalRead(_miso)) reply |= 1; // read the MISO bit, add to reply
               } // of for-next each bit
               *bytePtr++ = reply; // Add byte just read to return data
             } // of for-next each byte to be read

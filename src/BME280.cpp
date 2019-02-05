@@ -18,7 +18,7 @@ BME280_Class::~BME280_Class() {} ///< Empty & unused class destructor
 bool BME280_Class::begin()
 {
   return begin(I2C_STANDARD_MODE); // Initialize I2C with slow speed
-} // of method begin()                                                        //                                  //
+} // of method begin() 
 
 /*!
 * @brief     Begin method to start I2C communications
