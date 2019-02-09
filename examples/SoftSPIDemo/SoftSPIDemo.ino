@@ -1,54 +1,55 @@
-/*! @file SoftSPIDemo.ino
-
-@section SoftSPIDemo_intro_section Description
-
-Example program for using the Bosch BME280 sensor. The sensor measures temperature, pressure and humidity and is
-described at https://www.bosch-sensortec.com/bst/products/all_products/bme280. The datasheet is available from
-Bosch at https://ae-bst.resource.bosch.com/media/_tech/media/datasheets/BST-BME280_DS001-11.pdf\n\n
-
-The most recent version of the BME280 library is available at https://github.com/SV-Zanshin/BME280 and the
-documentation of the library as well as example programs are described in the project's wiki pages located at
-https://github.com/SV-Zanshin/BME280/wiki.\n\n
-
-The BME280 is a very small package so it is unlikely for an Arduino hobbyist to play around with directly, the
-hardware used to develop this library is a breakout board from AdaFruit which is well-documented at
-https://learn.adafruit.com/adafruit-bme280-humidity-barometric-pressure-temperature-sensor-breakout.\n\n
-
-This example program initializes the BME280 to use I2C for communications. The library does not using floating
-point mathematics to save on computation space and time, the values for Temperature, Pressure and Humidity are
-returned in deci-units, e.g. a Temperature reading of "2731" means "27.31" degrees Celsius. The display in
-the example program uses floating point for demonstration purposes only.  Note that the temperature reading is
-generally higher than the ambient temperature due to die and PCB temperature and self-heating of the element.\n\n
-
-The pressure reading needs to be adjusted for altitude to get the adjusted pressure reading. There are numerous
-sources on the internet for formula converting from standard sea-level pressure to altitude, see the data sheet
-for the BME180 on page 16 of http://www.adafruit.com/datasheets/BST-BMP180-DS000-09.pdf. Rather than put a
-floating-point function in the library which may not be used but which would use space, an example altitude
-computation function has been added to this example program to show how it might be done.
-
-@section SoftSPIDemolicense GNU General Public License v3.0
-
-This program is free software: you can redistribute it and/or modify it under the terms of the GNU General
-Public License as published by the Free Software Foundation, either version 3 of the License, or (at your
-option) any later version. This program is distributed in the hope that it will be useful, but WITHOUT ANY
-WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details. You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-@section SoftSPIDemoauthor Author
-
-Written by Arnd\@SV-Zanshin
-
-@section SoftSPIDemoversions Changelog
-
-Version | Date       | Developer                     | Comments
-------- | ---------- | ----------------------------- | ---------------------------------------------------
-1.0.3   | 2019-01-31 | https://github.com/SV-Zanshin | Issue #7 - convert documentation to Doxygen
-1.0.1   | 2017-08-04 | https://github.com/SV-Zanshin | Made output cleaner and toggled humidity readings
-1.0.0   | 2017-08-02 | https://github.com/SV-Zanshin | Cleaned up code prior to first release
-1.0.0b  | 2017-07-30 | https://github.com/SV-Zanshin | Initial coding
-
-*/
+/***************************************************************************************************************//*!
+* @file SoftSPIDemo.ino
+*
+* @section SoftSPIDemo_intro_section Description
+*
+* Example program for using the Bosch BME280 sensor. The sensor measures temperature, pressure and humidity and is
+* described at https://www.bosch-sensortec.com/bst/products/all_products/bme280. The datasheet is available from
+* Bosch at https://ae-bst.resource.bosch.com/media/_tech/media/datasheets/BST-BME280_DS001-11.pdf\n\n
+*
+* The most recent version of the BME280 library is available at https://github.com/SV-Zanshin/BME280 and the
+* documentation of the library as well as example programs are described in the project's wiki pages located at
+* https://github.com/SV-Zanshin/BME280/wiki.\n\n
+*
+* The BME280 is a very small package so it is unlikely for an Arduino hobbyist to play around with directly, the
+* hardware used to develop this library is a breakout board from AdaFruit which is well-documented at
+* https://learn.adafruit.com/adafruit-bme280-humidity-barometric-pressure-temperature-sensor-breakout.\n\n
+*
+* This example program initializes the BME280 to use I2C for communications. The library does not using floating
+* point mathematics to save on computation space and time, the values for Temperature, Pressure and Humidity are
+* returned in deci-units, e.g. a Temperature reading of "2731" means "27.31" degrees Celsius. The display in
+* the example program uses floating point for demonstration purposes only.  Note that the temperature reading is
+* generally higher than the ambient temperature due to die and PCB temperature and self-heating of the element.\n\n
+*
+* The pressure reading needs to be adjusted for altitude to get the adjusted pressure reading. There are numerous
+* sources on the internet for formula converting from standard sea-level pressure to altitude, see the data sheet
+* for the BME180 on page 16 of http://www.adafruit.com/datasheets/BST-BMP180-DS000-09.pdf. Rather than put a
+* floating-point function in the library which may not be used but which would use space, an example altitude
+* computation function has been added to this example program to show how it might be done.
+*
+* @section SoftSPIDemolicense GNU General Public License v3.0
+*
+* This program is free software: you can redistribute it and/or modify it under the terms of the GNU General
+* Public License as published by the Free Software Foundation, either version 3 of the License, or (at your
+* option) any later version. This program is distributed in the hope that it will be useful, but WITHOUT ANY
+* WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details. You should have received a copy of the GNU General Public License
+* along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*
+* @section SoftSPIDemoauthor Author
+*
+* Written by Arnd\@SV-Zanshin
+*
+* @section SoftSPIDemoversions Changelog
+*
+* Version | Date       | Developer                     | Comments
+* ------- | ---------- | ----------------------------- | ---------------------------------------------------
+* 1.0.3   | 2019-01-31 | https://github.com/SV-Zanshin | Issue #7 - convert documentation to Doxygen
+* 1.0.1   | 2017-08-04 | https://github.com/SV-Zanshin | Made output cleaner and toggled humidity readings
+* 1.0.0   | 2017-08-02 | https://github.com/SV-Zanshin | Cleaned up code prior to first release
+* 1.0.0b  | 2017-07-30 | https://github.com/SV-Zanshin | Initial coding
+*
+*******************************************************************************************************************/
 #include <BME280.h>  // Include the BME280 Sensor library
 /*******************************************************************************************************************
 ** Declare all program constants                                                                                  **
@@ -74,13 +75,13 @@ const uint8_t  SPI_MISO_PIN = 12; ///< Master-in, Slave-out Pin
 /*! Instantiate the class */
 BME280_Class   BME280;   // Create an instance of the BME280 //
 
-/*!
+/***************************************************************************************************************//*!
 * @brief     This converts a pressure measurement into a height in meters
 * @details   The corrected sea-level pressure can be passed into the function if it is know, otherwise the standard
 *            atmospheric pressure of 1013.25hPa is used (see https://en.wikipedia.org/wiki/Atmospheric_pressure
 * @param[in] seaLevel Sea-Level pressure in millibars
 * @return    floating point altitude in meters.
-*/
+*******************************************************************************************************************/
 float altitude(const float seaLevel = 1013.25)
 {
   static float Altitude;
@@ -90,12 +91,12 @@ float altitude(const float seaLevel = 1013.25)
   return(Altitude);
 } // of method altitude()
 
-/*!
-    @brief    Arduino method called once at startup to initialize the system
-    @details  This is an Arduino IDE method which is called first upon boot or restart. It is only called one time
-              and then control goes to the main "loop()" method, from which control never returns
-    @return   void
-*/
+/***************************************************************************************************************//*!
+* @brief    Arduino method called once at startup to initialize the system
+* @details  This is an Arduino IDE method which is called first upon boot or restart. It is only called one time
+*           and then control goes to the main "loop()" method, from which control never returns
+* @return   void
+*******************************************************************************************************************/
 void setup()
 {
   Serial.begin(SERIAL_SPEED);
@@ -133,11 +134,11 @@ void setup()
   Serial.println(F("ms.\n\n"));
 } // of method setup()
 
-/*!
-    @brief    Arduino method for the main program loop
-    @details  This is the main program for the Arduino IDE, it is an infinite loop and keeps on repeating.
-    @return   void
-*/
+/***************************************************************************************************************//*!
+* @brief    Arduino method for the main program loop
+* @details  This is the main program for the Arduino IDE, it is an infinite loop and keeps on repeating.
+* @return   void
+*******************************************************************************************************************/
 void loop()
 {
   static uint8_t loopCounter = 0;                      // iteration counter

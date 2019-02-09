@@ -1,33 +1,34 @@
-/*! @file BME280.cpp
- @section BME280cpp_intro_section Description
-
-Arduino Library for the BME280 Bosch sensor\n\n
-See main library header file for details
-*/
+/***************************************************************************************************************//*!
+* @file BME280.cpp
+* @section BME280cpp_intro_section Description
+*
+* Arduino Library for the BME280 Bosch sensor\n\n
+* See main library header file for details
+*******************************************************************************************************************/
 #include "BME280.h"
 BME280_Class::BME280_Class()  {} ///< Empty & unused class constructor
 BME280_Class::~BME280_Class() {} ///< Empty & unused class destructor
 
-/*!
+/***************************************************************************************************************//*!
 * @brief   Begin method to start I2C communications
 * @details It is overloaded to allow for 3 different connection types to be used - I2C, Hardware SPI and Software 
 *          SPI. When called with no parameters the I2C mode is enabled and the I2C bus is scanned for the first 
 *          BME280 (typically at 0x76 or 0x77 unless an I2C expander is used to remap the address.
 * @return  returns "true" when the class initialized correctly
-*/
+*******************************************************************************************************************/
 bool BME280_Class::begin()
 {
   return begin(I2C_STANDARD_MODE); // Initialize I2C with slow speed
 } // of method begin() 
 
-/*!
+/***************************************************************************************************************//*!
 * @brief     Begin method to start I2C communications
 * @details   It is overloaded to allow for 3 different connection types to be used - I2C, Hardware SPI and Software
 *            SPI. When called with no parameters the I2C mode is enabled and the I2C bus is scanned for the first
 *            BME280 (typically at 0x76 or 0x77 unless an I2C expander is used to remap the address.
 * @param[in] i2cSpeed I2C speed rate in baud
 * @return  returns "true" when the class initialized correctly
-*/
+*******************************************************************************************************************/
 bool BME280_Class::begin(const uint32_t i2cSpeed)
 {
   Wire.begin();            // Start I2C as master device
@@ -48,14 +49,14 @@ bool BME280_Class::begin(const uint32_t i2cSpeed)
   return false;
 } // of method begin()
 
-/*!
+/***************************************************************************************************************//*!
 * @brief     Begin method to starthardware SPI communications
 * @details   It is overloaded to allow for 3 different connection types to be used - I2C, Hardware SPI and Software
 *            SPI. When called with no parameters the I2C mode is enabled and the I2C bus is scanned for the first
 *            BME280 (typically at 0x76 or 0x77 unless an I2C expander is used to remap the address.
 * @param[in] chipSelect Hardware SPI CS chip
 * @return  returns "true" when the class initialized correctly
-*/
+*******************************************************************************************************************/
 bool BME280_Class::begin(const uint8_t chipSelect) // Use hardware SPI for comms
 {
   _cs = chipSelect;         // Store value for future use
@@ -70,7 +71,7 @@ bool BME280_Class::begin(const uint8_t chipSelect) // Use hardware SPI for comms
   return false;       // return failure if we get here
 } // of method begin()
 
-/*!
+/***************************************************************************************************************//*!
 * @brief     Begin method to starthardware SPI communications
 * @details   It is overloaded to allow for 3 different connection types to be used - I2C, Hardware SPI and Software
 *            SPI. When called with no parameters the I2C mode is enabled and the I2C bus is scanned for the first
@@ -80,8 +81,8 @@ bool BME280_Class::begin(const uint8_t chipSelect) // Use hardware SPI for comms
 * @param[in] miso Master-In Slave-Out pin
 * @param[in] sck  System Clock
 * @return  returns "true" when the class initialized correctly
-*/
-bool BME280_Class::begin(const uint8_t chipSelect, const uint8_t mosi, const uint8_t miso, const uint8_t sck) 
+*******************************************************************************************************************/
+bool BME280_Class::begin(const uint8_t chipSelect, const uint8_t mosi, const uint8_t miso, const uint8_t sck)
 {
   _cs   = chipSelect;  _mosi = mosi; _miso = miso; _sck  = sck; // Store SPI pins
   digitalWrite(_cs, HIGH); // High means ignore master
@@ -98,10 +99,10 @@ bool BME280_Class::begin(const uint8_t chipSelect, const uint8_t mosi, const uin
 } // of method begin()
 
 
-/*!
+/***************************************************************************************************************//*!
 * @brief     reads the calibration register data into local variables for use in converting readings
-*/
-void BME280_Class::getCalibration() 
+*******************************************************************************************************************/
+void BME280_Class::getCalibration()
 {
   getData(BME280_T1_REG,_cal_dig_T1);
   getData(BME280_T2_REG,_cal_dig_T2);
@@ -132,11 +133,11 @@ void BME280_Class::getCalibration()
   _cal_dig_H6 = readByte(BME280_H6_REG);
 } // of method getCalibration()
 
-/*!
+/***************************************************************************************************************//*!
 * @brief     interlude function to the getData() function. Reads 1 byte from the given address
 * @param[in] addr Address to read data from
 * @return    returns byte of data read
-*/
+*******************************************************************************************************************/
 uint8_t BME280_Class::readByte(const uint8_t addr)
 {
   uint8_t returnValue;       // Storage for returned value
@@ -144,12 +145,12 @@ uint8_t BME280_Class::readByte(const uint8_t addr)
   return (returnValue);      // Return byte just read
 } // of method readByte()
 
-/*!
-* @brief     sets the current mode bits or returns the current value if the parameter isn't used 
+/***************************************************************************************************************//*!
+* @brief     sets the current mode bits or returns the current value if the parameter isn't used
 * @param[in] operatingMode Device operating mode to set
 * @return    new mode
-*/
-uint8_t BME280_Class::mode(const uint8_t operatingMode) 
+*******************************************************************************************************************/
+uint8_t BME280_Class::mode(const uint8_t operatingMode)
 {
   uint8_t controlRegister = readByte(BME280_CONTROL_REG);          // Get the control register
   if (operatingMode==UINT8_MAX) return(controlRegister&B00000011); // Return setting if no parameter
@@ -159,7 +160,7 @@ uint8_t BME280_Class::mode(const uint8_t operatingMode)
   return(_mode);
 } // of method mode()
 
-/*!
+/***************************************************************************************************************//*!
 * @brief     sets the oversampling mode for the sensor
 * @details   see enumerated sensorTypes for list of values. Set to a valid oversampling rate as defined in the 
 *            enumerated type oversamplingTypes. If either value is out of range or another error occurs then the
@@ -167,7 +168,7 @@ uint8_t BME280_Class::mode(const uint8_t operatingMode)
 * @param[in] sensor Which sensor to set
 * @param[in] sampling Sampling rate
 * @return    Always returns "true"
-*/
+*******************************************************************************************************************/
 bool BME280_Class::setOversampling(const uint8_t sensor, const uint8_t sampling)
 {
   if(sensor>=UnknownSensor || sampling>=UnknownOversample) return(false); // return error if out of range
@@ -190,13 +191,13 @@ bool BME280_Class::setOversampling(const uint8_t sensor, const uint8_t sampling)
   return(true);
 } // of method setOversampling()
 
-/*!
+/***************************************************************************************************************//*!
 * @brief     retrieves the oversampling value for the sensor
 * @details   see enumerated sensorTypes for list of values. 
 * @param[in] sensor Which sensor to retrieve
 * @param[in] actual return the actual value if set, otherwise return the raw value
 * @return    return value
-*/
+*******************************************************************************************************************/
 uint8_t BME280_Class::getOversampling(const uint8_t sensor, const bool    actual)
 {
   uint8_t returnValue;                 // Get space for return value
@@ -216,14 +217,14 @@ uint8_t BME280_Class::getOversampling(const uint8_t sensor, const bool    actual
   return(returnValue); // return oversampling bits
 } // of method getOversampling()
 
-/*!
+/***************************************************************************************************************//*!
 * @brief     reads all 3 sensor values from the registers
 * @details   Read all 3 in one operation and then proceeds to convert the raw temperature, pressure and humidity 
 *            readings into standard metric units in the BME280's documentation but the math used below was taken 
 *            from Adafruit's Adafruit_BME280_Library at https://github.com/adafruit/Adafruit_BME280_Library. I 
 *            think it can be refactored into more efficient code at some point in the future, but it does work correctly
-*/
-void BME280_Class::readSensors() 
+*******************************************************************************************************************/
+void BME280_Class::readSensors()
 {
   uint8_t registerBuffer[8];
   int64_t i, j, p;
@@ -274,14 +275,14 @@ void BME280_Class::readSensors()
   _Humidity = (uint32_t)(i>>12)*100/1024; // in percent * 100
 } // of method readSensors()
 
-/*!
+/***************************************************************************************************************//*!
 * @brief     Set iir filter
 * @details   when called with no parameters returns the current IIR Filter setting, otherwise when called with one 
 *            parameter will set the IIR filter value and return the new setting
 * @param[in] iirFilterSetting Set iir 
 * @return    Inactive time time
-*/
-uint8_t BME280_Class::iirFilter(const uint8_t iirFilterSetting ) 
+*******************************************************************************************************************/
+uint8_t BME280_Class::iirFilter(const uint8_t iirFilterSetting )
 {
   uint8_t returnValue = readByte(BME280_CONFIG_REG);                   // Get control register byte
   if (iirFilterSetting==UINT8_MAX) return((returnValue>>2)&B00000111); // return the current setting
@@ -292,14 +293,14 @@ uint8_t BME280_Class::iirFilter(const uint8_t iirFilterSetting )
   return(returnValue);                                                 // Return IIR Filter setting
 } // of method iirFilter()
 
-/*!
+/***************************************************************************************************************//*!
 * @brief     Return the inactive time setting
 * @details   when called with no parameters returns the current inactive time setting, otherwise uses the parameter 
 *            to set the inactive time
 * @param[in] inactiveTimeSetting
 * @return    inactive time setting
-*/
-uint8_t BME280_Class::inactiveTime(const uint8_t inactiveTimeSetting) 
+*******************************************************************************************************************/
+uint8_t BME280_Class::inactiveTime(const uint8_t inactiveTimeSetting)
 {
   uint8_t returnValue = readByte(BME280_CONFIG_REG);                // Get control register
   if (inactiveTimeSetting!=UINT8_MAX)                               // If we have a specified value
@@ -310,12 +311,12 @@ uint8_t BME280_Class::inactiveTime(const uint8_t inactiveTimeSetting)
   return(returnValue>>5); // Return inactive time setting
 } // of method inactiveTime()
 
-/*!
+/***************************************************************************************************************//*!
 * @brief     returns the time in microseconds for a measurement cycle with the current settings
 * @details   A cycle includes a temperature, pressure and humidity reading plus the wait time
 * @param[in] measureTimeSetting 
 * @return    measurement cycle time
-*/
+*******************************************************************************************************************/
 uint32_t BME280_Class::measurementTime(const uint8_t measureTimeSetting)
 {
   uint32_t Time1, Time2;
@@ -351,12 +352,12 @@ uint32_t BME280_Class::measurementTime(const uint8_t measureTimeSetting)
   return(returnValue);
 } // of method measurementTime()
 
-/*!
+/***************************************************************************************************************//*!
 * @brief      returns the most recent temperature, humidity and pressure readings
 * @param[out] temp  temperature value from device
 * @param[out] hum   humidity value from device
 * @param[out] press pressure value from device
-*/
+*******************************************************************************************************************/
 void BME280_Class::getSensorData(int32_t &temp, int32_t &hum, int32_t &press)
 {
   readSensors();        // Get compensated data from BME280
@@ -365,9 +366,9 @@ void BME280_Class::getSensorData(int32_t &temp, int32_t &hum, int32_t &press)
   press = _Pressure;
 } // of method getSensorData()
 
-/*!
+/***************************************************************************************************************//*!
 * @brief      performs a device reset, as if it were powered down and back up again
-*/
+*******************************************************************************************************************/
 void BME280_Class::reset()
 {
    putData(BME280_SOFTRESET_REG,BME280_SOFTWARE_CODE); // writing code here resets device

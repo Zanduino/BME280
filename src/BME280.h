@@ -115,11 +115,11 @@
   /*! Measure time type list */
   enum measureTimeTypes  {TypicalMeasure,MaximumMeasure,UnknownMeasure };
 
-  /*!
+  /*************************************************************************************************************//*!
   * @class BME280_Class
   * @brief BME280 Class definition
   * @details BME280 Class forward declarations for methods and public/private variable declarations
-  */
+  *****************************************************************************************************************/
   class BME280_Class 
   {
     public:
@@ -162,18 +162,19 @@
       ** This is done by using template function definitions which need to be defined in this header file rather  **
       ** than in the c++ program library file.                                                                    **
       *************************************************************************************************************/
-      /*!
-          @brief     Template for reading from the I2C or SPI bus
-          @details   As a template it can support compile-time data type definitions
-          @param[in] addr Memory address
-          @param[in] value Data Type "T" to read
-          @return    Size of data read
-      */
+
+      /*********************************************************************************************************//*!
+      * @brief     Template function for reading from the I2C or SPI bus
+      * @details   As a template it supports compile-time data type definitions
+      * @param[in] addr Memory address
+      * @param[in] value Data Type "T" to read
+      * @return    Size of data read
+      *************************************************************************************************************/
       template< typename T > uint8_t &getData(const uint8_t addr,T &value)
       {
-        uint8_t* bytePtr    = (uint8_t*)&value; // Pointer to structure beginning
-        static uint8_t  structSize = sizeof(T); // Number of bytes in structure
-        if (_I2CAddress) // If I2C address is non-zero then assume I2C bus
+        uint8_t* bytePtr    = (uint8_t*)&value;         // Pointer to structure beginning
+        static uint8_t  structSize = sizeof(T);         // Number of bytes in structure
+        if (_I2CAddress)                                // If I2C address is non-zero then assume I2C bus
         {
           Wire.beginTransmission(_I2CAddress);          // Address the I2C device
           Wire.write(addr);                             // Send register address to read
@@ -222,13 +223,14 @@
         return(structSize); // return the number of bytes read
       } // of method getData()
       
-      /*!
+      /*********************************************************************************************************//*!
       *  @brief    Template for writing to the I2C or SPI bus
       * @details   As a template it can support compile-time data type definitions
       * @param[in] addr Memory address
       * @param[in] value Data Type "T" to read
       * @return    Size of data written
-      */      template<typename T>uint8_t &putData(const uint8_t addr,const T &value)
+      *************************************************************************************************************/
+      template<typename T>uint8_t &putData(const uint8_t addr,const T &value)
       {
         const uint8_t* bytePtr    = (const uint8_t*)&value; // Pointer to structure beginning
         static uint8_t  structSize = sizeof(T); // Number of bytes in structure
