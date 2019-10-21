@@ -286,7 +286,7 @@ uint8_t BME280_Class::iirFilter(const uint8_t iirFilterSetting )
 {
   uint8_t returnValue = readByte(BME280_CONFIG_REG);                   // Get control register byte
   if (iirFilterSetting==UINT8_MAX) return((returnValue>>2)&B00000111); // return the current setting
-  returnValue = returnValue&B11110001;                                 // Get control reg, mask IIR bits
+  returnValue = returnValue&B11100011;                                 // Get control reg, mask IIR bits
   returnValue |= (iirFilterSetting&B00000111)<<2;                      // use 3 bits of iirFilterSetting
   putData(BME280_CONFIG_REG,returnValue);                              // Write new control register value
   returnValue = (returnValue>>2)&B00000111;                            // Extract IIR filter setting

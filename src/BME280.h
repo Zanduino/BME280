@@ -37,6 +37,7 @@
 *
 * Version| Date       | Developer                     | Comments
 * ------ | ---------- | ----------------------------- | --------
+* 1.0.5  | 2019-01-31 | https://github.com/wolfbert   | Issue #9 - Corrected IIR mask bits
 * 1.0.3  | 2019-01-31 | https://github.com/SV-Zanshin | Issue #7 - Corrected documentation to Doxygen style
 * 1.0.2  | 2018-07-22 | https://github.com/SV-Zanshin | Corrected I2C Datatypes
 * 1.0.2  | 2018-06-30 | https://github.com/SV-Zanshin | Issue #6 - Allow faster I2C bus speeds
