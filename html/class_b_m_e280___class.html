@@ -111,10 +111,10 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:affbc21f51d8996de26cf21e119aaa2ca"><td class="mdescLeft">&#160;</td><td class="mdescRight">Begin method to start I2C communications.  <a href="#affbc21f51d8996de26cf21e119aaa2ca">More...</a><br /></td></tr>
 <tr class="separator:affbc21f51d8996de26cf21e119aaa2ca"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a307cd46757b08dffe71725686a39e74c"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_b_m_e280___class.html#a307cd46757b08dffe71725686a39e74c">begin</a> (const uint8_t chipSelect)</td></tr>
-<tr class="memdesc:a307cd46757b08dffe71725686a39e74c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Begin method to starthardware SPI communications.  <a href="#a307cd46757b08dffe71725686a39e74c">More...</a><br /></td></tr>
+<tr class="memdesc:a307cd46757b08dffe71725686a39e74c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Begin method to start hardware SPI communications.  <a href="#a307cd46757b08dffe71725686a39e74c">More...</a><br /></td></tr>
 <tr class="separator:a307cd46757b08dffe71725686a39e74c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af92f976f0c665439e933e57f06b19850"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_b_m_e280___class.html#af92f976f0c665439e933e57f06b19850">begin</a> (const uint8_t chipSelect, const uint8_t mosi, const uint8_t miso, const uint8_t sck)</td></tr>
-<tr class="memdesc:af92f976f0c665439e933e57f06b19850"><td class="mdescLeft">&#160;</td><td class="mdescRight">Begin method to starthardware SPI communications.  <a href="#af92f976f0c665439e933e57f06b19850">More...</a><br /></td></tr>
+<tr class="memdesc:af92f976f0c665439e933e57f06b19850"><td class="mdescLeft">&#160;</td><td class="mdescRight">Begin method to start software SPI communications.  <a href="#af92f976f0c665439e933e57f06b19850">More...</a><br /></td></tr>
 <tr class="separator:af92f976f0c665439e933e57f06b19850"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a74ab6797d3d9a48b32bfbcc3aa91ee3a"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_b_m_e280___class.html#a74ab6797d3d9a48b32bfbcc3aa91ee3a">mode</a> (const uint8_t operatingMode=UINT8_MAX)</td></tr>
 <tr class="memdesc:a74ab6797d3d9a48b32bfbcc3aa91ee3a"><td class="mdescLeft">&#160;</td><td class="mdescRight">sets the current mode bits or returns the current value if the parameter isn't used  <a href="#a74ab6797d3d9a48b32bfbcc3aa91ee3a">More...</a><br /></td></tr>
@@ -209,7 +209,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
       </table>
 </div><div class="memdoc">
 
-<p>Begin method to starthardware SPI communications. </p>
+<p>Begin method to start hardware SPI communications. </p>
 <p>It is overloaded to allow for 3 different connection types to be used - I2C, Hardware SPI and Software SPI. When called with no parameters the I2C mode is enabled and the I2C bus is scanned for the first BME280 (typically at 0x76 or 0x77 unless an I2C expander is used to remap the address. </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">chipSelect</td><td>Hardware SPI CS chip </td></tr>
@@ -258,7 +258,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
       </table>
 </div><div class="memdoc">
 
-<p>Begin method to starthardware SPI communications. </p>
+<p>Begin method to start software SPI communications. </p>
 <p>It is overloaded to allow for 3 different connection types to be used - I2C, Hardware SPI and Software SPI. When called with no parameters the I2C mode is enabled and the I2C bus is scanned for the first BME280 (typically at 0x76 or 0x77 unless an I2C expander is used to remap the address. </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">chipSelect</td><td>Hardware SPI CS chip </td></tr>
