@@ -50,7 +50,7 @@ bool BME280_Class::begin(const uint32_t i2cSpeed)
 } // of method begin()
 
 /***************************************************************************************************************//*!
-* @brief     Begin method to starthardware SPI communications
+* @brief     Begin method to start hardware SPI communications
 * @details   It is overloaded to allow for 3 different connection types to be used - I2C, Hardware SPI and Software
 *            SPI. When called with no parameters the I2C mode is enabled and the I2C bus is scanned for the first
 *            BME280 (typically at 0x76 or 0x77 unless an I2C expander is used to remap the address.
@@ -72,7 +72,7 @@ bool BME280_Class::begin(const uint8_t chipSelect) // Use hardware SPI for comms
 } // of method begin()
 
 /***************************************************************************************************************//*!
-* @brief     Begin method to starthardware SPI communications
+* @brief     Begin method to start software SPI communications
 * @details   It is overloaded to allow for 3 different connection types to be used - I2C, Hardware SPI and Software
 *            SPI. When called with no parameters the I2C mode is enabled and the I2C bus is scanned for the first
 *            BME280 (typically at 0x76 or 0x77 unless an I2C expander is used to remap the address.
