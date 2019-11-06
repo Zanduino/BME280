@@ -1,9 +1,9 @@
 /***************************************************************************************************************//*!
 * @file BME280.h
 *
-*  @mainpage Arduino Library Header to access the Bosch BME280 sensor
+* @mainpage Arduino Library Header to access the Bosch BME280 sensor
 *
-*  @section intro_section Description
+* @section intro_section Description
 *
 * Class definition header for the Bosch BME280 temperature / humidity / pressure sensor. The sensor is described at
 * https://www.bosch-sensortec.com/bst/products/all_products/bme280 and the datasheet is available from Bosch at
@@ -31,7 +31,7 @@
 *
 * @section author Author
 *
-* Written by Arnd\@SV-Zanshin
+* Written by https://github.com/SV-Zanshin
 *
 * @section versions Changelog
 *
@@ -55,7 +55,7 @@
 #include <Wire.h>    // Standard I2C "Wire" library
 #include <SPI.h>     // Standard SPI library
 #ifndef BME280_h
-/* @brief Define guard code to prevent multiple inclusions */
+/*! @brief Define guard code to prevent multiple inclusions */
 #define BME280_h
   /*****************************************************************************************************************
   ** Declare constants used in the class                                                                          **
@@ -225,7 +225,7 @@
       } // of method getData()
       
       /*********************************************************************************************************//*!
-      *  @brief    Template for writing to the I2C or SPI bus
+      * @brief     Template for writing to the I2C or SPI bus
       * @details   As a template it can support compile-time data type definitions
       * @param[in] addr Memory address
       * @param[in] value Data Type "T" to read

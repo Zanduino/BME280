@@ -181,7 +181,7 @@ bool BME280_Class::setOversampling(const uint8_t sensor, const uint8_t sampling)
   else 
     if (sensor==TemperatureSensor) // otherwise if we have temperature
     {
-      originalControl = (originalControl&B00011111)|(sampling<<5); // Update the register bits
+      originalControl = (originalControl&B00011111) | (sampling << 5); // Update the register bits
     } 
     else
     {
