@@ -22,4 +22,5 @@ var menudata={children:[
 {text:"b",url:"globals_vars.html#index_b"},
 {text:"i",url:"globals_vars.html#index_i"},
 {text:"s",url:"globals_vars.html#index_s"}]},
-{text:"Enumerations",url:"globals_enum.html"}]}]}]}
+{text:"Enumerations",url:"globals_enum.html"},
+{text:"Macros",url:"globals_defs.html"}]}]}]}
