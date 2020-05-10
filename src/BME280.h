@@ -61,7 +61,7 @@
   ** Declare constants used in the class                                                                          **
   *****************************************************************************************************************/
   #ifndef I2C_MODES
-  /* @brief Define guard code to prevent multiple inclusions */
+  /*! @brief Define guard code to prevent multiple inclusions */
     #define I2C_MODES
     const uint32_t I2C_STANDARD_MODE       =  100000; ///< Default normal I2C 100KHz speed
     const uint32_t I2C_FAST_MODE           =  400000; ///< Fast mode
