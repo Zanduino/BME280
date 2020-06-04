@@ -1,9 +1,11 @@
 ######################################################################################################
 ## Doxygen control file for Version 1.8.16                                                          ##
 ##                                                                                                  ##
-## Date       Developer           Comments                                                          ##
-## ========== =================== ================================================================= ##
-## 2020-05-10 Arnd@SV-Zanshin     Removed all comments in order to compact this file                ##
+## Date       Developer                      Comments                                               ##
+## ========== ============================== ====================================================== ##
+## 2020-05-23 https://github.com/SV-Zanshin  Removed e-mail addresses from file                     ##
+## 2020-05-21 https://github.com/SV-Zanshin  Removed unused definitions causing Travis-CI to fail   ##
+## 2020-05-10 https://github.com/SV-Zanshin  Removed all comments in order to compact this file     ##
 ##                                                                                                  ##
 ######################################################################################################
 DOXYFILE_ENCODING      = UTF-8
