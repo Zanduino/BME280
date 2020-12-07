@@ -61,7 +61,7 @@ Version | Date       | Developer  | Comments
 ** Declare all program constants                                                                  **
 ***************************************************************************************************/
 const uint32_t SERIAL_SPEED{115200};  ///< Default baud rate for Serial I/O
-const uint8_t SPI_CS_PIN{53};         ///< Default pin for SPI CS on an ATmega 2560
+const uint8_t  SPI_CS_PIN{53};        ///< Default pin for SPI CS on an ATmega 2560
 /***************************************************************************************************
 ** Declare global variables and instantiate classes                                               **
 ***************************************************************************************************/
