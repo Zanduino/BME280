@@ -16,4 +16,4 @@ The pressure sensor works in temperatures between -40°C and +85°C although the
 
 A detailed library description and further details are available at the [GitHub BME280 Wiki](https://github.com/SV-Zanshin/BME280/wiki)
 
-![Zanshin Logo](https://www.sv-zanshin.com/r/images/site/gif/zanshinkanjitiny.gif) <img src="https://www.sv-zanshin.com/r/images/site/gif/zanshintext.gif" width="75"/>
+[![Zanshin Logo](https://zanduino.github.io/Images/zanshinkanjitiny.gif) <img src="https://zanduino.github.io/Images/zanshintext.gif" width="75"/>](https://www.sv-zanshin.com)
