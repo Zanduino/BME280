@@ -50,6 +50,7 @@ Written by Arnd\@SV-Zanshin
 
 Version | Date       | Developer  | Comments
 ------- | ---------- | ---------- | ---------------------------------------------
+1.0.4   | 2020-12-07 | SV-Zanshin | clang-format the source code
 1.0.3   | 2019-01-31 | SV-Zanshin | Issue #7 - convert documentation to Doxygen
 1.0.1   | 2017-08-04 | SV-Zanshin | Made output cleaner and toggled humidity readings
 1.0.0   | 2017-08-02 | SV-Zanshin | Cleaned up code prior to first release
