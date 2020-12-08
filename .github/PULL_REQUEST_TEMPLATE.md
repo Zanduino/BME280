@@ -1,5 +1,5 @@
 # Description
-_Please include a text summary of the change and which issue(s) is/are fixed or addressed. Should the change have any dependencies 
+_Please include a text summary of the change and which issue(s) is/are fixed or addressed. Should the change have any dependencies
 then these should be listed here._
 
 Fixes # (issue)
@@ -26,7 +26,7 @@ _Please describe the tests that you ran to verify your changes. Provide instruct
 * Arduino version:
 * Arduino Hardware:
 * SDK: (Arduino IDE, Atmel Studio, Visual Studio, Visual Micro, etc.)
-* Development sytem: (Windows, Web, Linux, etc.)
+* Development system: (Windows, Web, Linux, etc.)
 
 # Checklist:
 
