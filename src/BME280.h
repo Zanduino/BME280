@@ -23,14 +23,15 @@
  well-documented at
  https://learn.adafruit.com/adafruit-bme280-humidity-barometric-pressure-temperature-sensor-breakout.
 
- @section doxygen configuration
+ @section doxygen doxygen configuration
+
  This library is built with the standard "Doxyfile", which is located at
  https://github.com/Zanduino/Common/blob/main/Doxygen. As described on that page, there are only 5
  environment variables used, and these are set in the project's actions file, located at
- https://github.com/Zanduino/<project>/blob/master/.github/workflows/ci-doxygen.yml
- Edit this file and set the 5 variables: PRETTYNAME, PROJECT_NAME, PROJECT_NUMBER, PROJECT_BRIEF and
- PROJECT_LOGO so that these values are used in the doxygen documentation.
- The local copy of the doxyfile should be in the project\'s root directory in order to do local
+ https://github.com/Zanduino/{project}/blob/master/.github/workflows/ci-doxygen.yml
+ Edit this file and set the 5 variables -  PRETTYNAME, PROJECT_NAME, PROJECT_NUMBER, PROJECT_BRIEF 
+ and PROJECT_LOGO so that these values are used in the doxygen documentation.
+ The local copy of the doxyfile should be in the project's root directory in order to do local
  doxygen testing, but the file is ignored on upload to GitHub.
 
  @section clang-format
