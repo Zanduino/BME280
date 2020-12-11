@@ -8,9 +8,9 @@ humidity and is described at https://www.bosch-sensortec.com/bst/products/all_pr
 datasheet is available from Bosch at
 https://ae-bst.resource.bosch.com/media/_tech/media/datasheets/BST-BME280_DS001-11.pdf\n\n
 
-The most recent version of the BME280 library is available at https://github.com/SV-Zanshin/BME280
+The most recent version of the BME280 library is available at https://github.com/Zanduino/BME280
 and the documentation of the library as well as example programs are described in the project's wiki
-pages located at https://github.com/SV-Zanshin/BME280/wiki.\n\n
+pages located at https://github.com/Zanduino/BME280/wiki.\n\n
 
 The BME280 is a very small package so it is unlikely for an Arduino hobbyist to play around with
 directly, the hardware used to develop this library is a breakout board from AdaFruit which is
