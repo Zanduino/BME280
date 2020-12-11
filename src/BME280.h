@@ -30,7 +30,7 @@
  https://github.com/Zanduino/<project>/blob/master/.github/workflows/ci-doxygen.yml
  Edit this file and set the 5 variables: PRETTYNAME, PROJECT_NAME, PROJECT_NUMBER, PROJECT_BRIEF and
  PROJECT_LOGO so that these values are used in the doxygen documentation.
- The local copy of the doxyfile should be in the project's root directory in order to do local
+ The local copy of the doxyfile should be in the project\'s root directory in order to do local
  doxygen testing, but the file is ignored on upload to GitHub.
 
  @section clang-format
