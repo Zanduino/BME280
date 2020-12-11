@@ -14,43 +14,60 @@
  The BME280 can use either SPI or I2C for communications. The initial library version 1.0.0 defines
  only I2C while subsequent versions also allow SPI communications\n\n
 
- The most recent version of the library is available at https://github.com/SV-Zanshin/BME280 and 
- extensive documentation of the library as well as example programs are described in the project's 
- wiki pages located at https://github.com/SV-Zanshin/BME280/wiki. \n\n
+ The most recent version of the library is available at https://github.com/Zanduino/BME280 and
+ extensive documentation of the library as well as example programs are described in the project's
+ wiki pages located at https://github.com/Zanduino/BME280/wiki. \n\n
 
- The BME280 is a very small package so it is unlikely for an Arduino hobbyist to play around with 
- directly, the hardware used to develop this library is a breakout board from AdaFruit which is 
+ The BME280 is a very small package so it is unlikely for an Arduino hobbyist to play around with
+ directly, the hardware used to develop this library is a breakout board from AdaFruit which is
  well-documented at
  https://learn.adafruit.com/adafruit-bme280-humidity-barometric-pressure-temperature-sensor-breakout.
+
+ @section doxygen configuration
+ This library is built with the standard "Doxyfile", which is located at
+ https://github.com/Zanduino/Common/blob/main/Doxygen. As described on that page, there are only 5
+ environment variables used, and these are set in the project's actions file, located at
+ https://github.com/Zanduino/<project>/blob/master/.github/workflows/ci-doxygen.yml
+ Edit this file and set the 5 variables: PRETTYNAME, PROJECT_NAME, PROJECT_NUMBER, PROJECT_BRIEF and
+ PROJECT_LOGO so that these values are used in the doxygen documentation.
+ The local copy of the doxyfile should be in the project's root directory in order to do local
+ doxygen testing, but the file is ignored on upload to GitHub.
+
+ @section clang-format
+ Part of the GitHub actions for CI is running every source file through "clang-format" to ensure
+ that coding formatting is done the same for all files. The configuration file ".clang-format" is
+ located at https://github.com/Zanduino/Common/tree/main/clang-format and this is used for CI tests
+ when pushing to GitHub. The local file, if present in the root directory, is ignored when
+ committing and uploading.
 
  @section license GNU General Public License v3.0
 
  This program is free software: you can redistribute it and/or modify it under the terms of the GNU
- General Public License as published by the Free Software Foundation, either version 3 of the 
- License, or (at your option) any later version. This program is distributed in the hope that it 
+ General Public License as published by the Free Software Foundation, either version 3 of the
+ License, or (at your option) any later version. This program is distributed in the hope that it
  will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details. You should
- have received a copy of the GNU General Public License along with this program.  If not, see 
+ have received a copy of the GNU General Public License along with this program.  If not, see
  <http://www.gnu.org/licenses/>.
 
  @section author Author
 
- Written by https://github.com/SV-Zanshin
+ Written by Arnd <Zanshin_Github@sv-zanshin.com> / https://www.github.com/SV-Zanshin
 
  @section versions Changelog
 
- Version| Date       | Developer                     | Comments
- ------ | ---------- | ----------------------------- | --------
- 1.0.5  | 2019-01-31 | https://github.com/wolfbert   | Issue #9 - Corrected IIR mask bits
- 1.0.3  | 2019-01-31 | https://github.com/SV-Zanshin | Issue #7 - Corrected documentation to Doxygen style
- 1.0.2  | 2018-07-22 | https://github.com/SV-Zanshin | Corrected I2C Datatypes
- 1.0.2  | 2018-06-30 | https://github.com/SV-Zanshin | Issue #6 - Allow faster I2C bus speeds
- 1.0.2a | 2017-08-13 | https://github.com/SV-Zanshin | Removed extraneous I2C wait loop according to bug report #2
- 1.0.2  | 2017-08-04 | https://github.com/SV-Zanshin | Combined iirFilter() overloaded functions
- 1.0.1  | 2017-08-03 | https://github.com/SV-Zanshin | All read/writes now use getData() and putData() templates in this header. Changed begin() method for I2C to search for first instance of BME280. Added hardware and software SPI functionality and tested it
- 1.0.0  | 2017-08-03 | https://github.com/SV-Zanshin | Initial version with just I2C connectivity
- 1.0.0b | 2017-07-31 | https://github.com/SV-Zanshin | Continued development
- 1.0.0a | 2017-07-30 | https://github.com/SV-Zanshin | Started coding
+ Version| Date       | Developer  | Comments
+ ------ | ---------- | ---------- | --------
+ 1.0.5  | 2019-01-31 | wolfbert   | Issue #9 - Corrected IIR mask bits
+ 1.0.3  | 2019-01-31 | SV-Zanshin | Issue #7 - Corrected documentation to Doxygen style
+ 1.0.2  | 2018-07-22 | SV-Zanshin | Corrected I2C Datatypes
+ 1.0.2  | 2018-06-30 | SV-Zanshin | Issue #6 - Allow faster I2C bus speeds
+ 1.0.2a | 2017-08-13 | SV-Zanshin | Removed extraneous I2C wait loop according to bug report #2
+ 1.0.2  | 2017-08-04 | SV-Zanshin | Combined iirFilter() overloaded functions
+ 1.0.1  | 2017-08-03 | SV-Zanshin | All read/writes now use getData() and putData() templates in this header. Changed begin() method for I2C to search for first instance of BME280. Added hardware and software SPI functionality and tested it
+ 1.0.0  | 2017-08-03 | SV-Zanshin | Initial version with just I2C connectivity
+ 1.0.0b | 2017-07-31 | SV-Zanshin | Continued development
+ 1.0.0a | 2017-07-30 | SV-Zanshin | Started coding
 */
 // clang-format on
 #include "Arduino.h"  // Arduino data type definitions
