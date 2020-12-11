@@ -29,9 +29,9 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">BME280
-   &#160;<span id="projectnumber">v1.0.4</span>
+   &#160;<span id="projectnumber">v1.0.3</span>
    </div>
-   <div id="projectbrief">Arduino Library for Bosch BME280 Temperature, Humidity, and Pressure</div>
+   <div id="projectbrief">Arduino Library for the Bosch BME280</div>
   </td>
  </tr>
  </tbody>
@@ -96,7 +96,7 @@ Description</h1>
  The BME280 is a very small package so it is unlikely for an Arduino hobbyist to play around with directly, the hardware used to develop this library is a breakout board from AdaFruit which is well-documented at <a href="https://learn.adafruit.com/adafruit-bme280-humidity-barometric-pressure-temperature-sensor-breakout">https://learn.adafruit.com/adafruit-bme280-humidity-barometric-pressure-temperature-sensor-breakout</a>.</p>
 <h1><a class="anchor" id="doxygen"></a>
 doxygen configuration</h1>
-<p>This library is built with the standard "Doxyfile", which is located at <a href="https://github.com/Zanduino/Common/blob/main/Doxygen">https://github.com/Zanduino/Common/blob/main/Doxygen</a>. As described on that page, there are only 5 environment variables used, and these are set in the project's actions file, located at <a href="https://github.com/Zanduino/{project}/blob/master/.github/workflows/ci-doxygen.yml">https://github.com/Zanduino/{project}/blob/master/.github/workflows/ci-doxygen.yml</a> Edit this file and set the 5 variables - PRETTYNAME, PROJECT_NAME, PROJECT_NUMBER, PROJECT_BRIEF and PROJECT_LOGO so that these values are used in the doxygen documentation. The local copy of the doxyfile should be in the project's root directory in order to do local doxygen testing, but the file is ignored on upload to GitHub.</p>
+<p>This library is built with the standard "Doxyfile", which is located at <a href="https://github.com/Zanduino/Common/blob/main/Doxygen">https://github.com/Zanduino/Common/blob/main/Doxygen</a>. As described on that page, there are only 5 environment variables used, and these are set in the project's actions file, located at <a href="https://github.com/Zanduino/BME280/blob/master/.github/workflows/ci-doxygen.yml">https://github.com/Zanduino/BME280/blob/master/.github/workflows/ci-doxygen.yml</a> Edit this file and set the 5 variables - PRETTYNAME, PROJECT_NAME, PROJECT_NUMBER, PROJECT_BRIEF and PROJECT_LOGO so that these values are used in the doxygen documentation. The local copy of the doxyfile should be in the project's root directory in order to do local doxygen testing, but the file is ignored on upload to GitHub.</p>
 <h1><a class="anchor" id="clang-format"></a>
 clang-format</h1>
 <p>Part of the GitHub actions for CI is running every source file through "clang-format" to ensure that coding formatting is done the same for all files. The configuration file ".clang-format" is located at <a href="https://github.com/Zanduino/Common/tree/main/clang-format">https://github.com/Zanduino/Common/tree/main/clang-format</a> and this is used for CI tests when pushing to GitHub. The local file, if present in the root directory, is ignored when committing and uploading.</p>
