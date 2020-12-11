@@ -1,6 +1,6 @@
 var NAVTREE =
 [
-  [ "Cubigel", "index.html", [
+  [ "BME280", "index.html", [
     [ "Arduino Library Header to access the Bosch BME280 sensor", "index.html", [
       [ "Description", "index.html#intro_section", null ],
       [ "doxygen configuration", "index.html#doxygen", null ],
