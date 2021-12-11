@@ -71,23 +71,24 @@
  1.0.0a | 2017-07-30 | SV-Zanshin | Started coding
 */
 // clang-format on
+#include <SPI.h>   // Standard SPI library
+#include <Wire.h>  // Standard I2C "Wire" library
+
 #include "Arduino.h"  // Arduino data type definitions
-#include <Wire.h>     // Standard I2C "Wire" library
-#include <SPI.h>      // Standard SPI library
 #ifndef BME280_h
-/*! @brief Define guard code to prevent multiple inclusions */
-#define BME280_h
-/*************************************************************************************************
-** Declare constants used in the class                                                          **
-*************************************************************************************************/
-#ifndef I2C_MODES
-/*! @brief Define guard code to prevent multiple inclusions */
-#define I2C_MODES
+  /*! @brief Define guard code to prevent multiple inclusions */
+  #define BME280_h
+  /*************************************************************************************************
+  ** Declare all constants used in the class                                                      **
+  *************************************************************************************************/
+  #ifndef I2C_MODES
+    /*! @brief Define guard code to prevent multiple inclusions */
+    #define I2C_MODES
 const uint32_t I2C_STANDARD_MODE       = 100000;   ///< Default normal I2C 100KHz speed
 const uint32_t I2C_FAST_MODE           = 400000;   ///< Fast mode
 const uint32_t I2C_FAST_MODE_PLUS_MODE = 1000000;  ///< Really fast mode
 const uint32_t I2C_HIGH_SPEED_MODE     = 3400000;  ///< Turbo mode
-#endif
+  #endif
 const uint32_t SPI_HERTZ               = 500000;  ///< SPI speed in Hz
 const uint8_t  BME280_CHIPID_REG       = 0xD0;    ///< Chip-Id register
 const uint8_t  BME280_CHIPID           = 0x60;    ///< Hard-coded value 0x60 for BME280
@@ -120,7 +121,7 @@ const uint8_t  BME280_H5_REG           = 0xE5;    ///< calibration data register
 const uint8_t  BME280_H6_REG           = 0xE7;    ///< calibration data register
 
 /*************************************************************************************************
-** Declare enumerated types used in the class                                                   **
+** Declare all enumerated types used in the class                                               **
 *************************************************************************************************/
 /*! Device Mode list */
 enum modeTypes { SleepMode, ForcedMode, ForcedMode2, NormalMode, UnknownMode };
@@ -310,12 +311,12 @@ class BME280_Class {
             digitalWrite(_mosi, *bytePtr & (1 << j));  // set the MOSI pin state
             digitalWrite(_sck, HIGH);                  // reset the clock signal
           }                                            // of for-next each bit
-#ifdef ESP32
+  #ifdef ESP32
           static uint8_t dummyVar =
               *bytePtr++;  // go to next byte to write (dummyVar only required for ESP32)
-#else
+  #else
           *bytePtr++;  // go to next byte to write
-#endif
+  #endif
           digitalWrite(_cs, HIGH);  // Tell BME280 to stop listening
         }                           // of for-next each byte to be read
       }                             // of  if-then-else we are using hardware SPI

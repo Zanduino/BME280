@@ -50,6 +50,7 @@ Written by Arnd <Arnd@Zanduino.Com> at https://www.github.com/SV-Zanshin
 
 Version | Date       | Developer  | Comments
 ------- | ---------- | ---------- | ---------------------------------------------
+1.0.4   | 2021-12-11 | SV-Zanshin | clang-formatted the source code again
 1.0.4   | 2020-12-07 | SV-Zanshin | clang-format the source code
 1.0.3   | 2019-01-31 | SV-Zanshin | Issue #7 - convert documentation to Doxygen
 1.0.1   | 2017-08-04 | SV-Zanshin | Made output cleaner and toggled humidity readings
