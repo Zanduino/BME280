@@ -331,30 +331,14 @@ uint32_t BME280_Class::measurementTime(const uint8_t measureTimeSetting) {
   uint32_t returnValue = inactiveTime();  // Get inactive time value
   switch (returnValue)                    // Set inactive time according to
   {
-    case inactiveHalf:
-      returnValue = 500;
-      break;
-    case inactive63ms:
-      returnValue = 62500;
-      break;
-    case inactive125ms:
-      returnValue = 125000;
-      break;
-    case inactive250ms:
-      returnValue = 250000;
-      break;
-    case inactive500ms:
-      returnValue = 500000;
-      break;
-    case inactive1000ms:
-      returnValue = 1000000;
-      break;
-    case inactive10ms:
-      returnValue = 10000;
-      break;
-    case inactive20ms:
-      returnValue = 20000;
-      break;
+    case inactiveHalf: returnValue = 500; break;
+    case inactive63ms: returnValue = 62500; break;
+    case inactive125ms: returnValue = 125000; break;
+    case inactive250ms: returnValue = 250000; break;
+    case inactive500ms: returnValue = 500000; break;
+    case inactive1000ms: returnValue = 1000000; break;
+    case inactive10ms: returnValue = 10000; break;
+    case inactive20ms: returnValue = 20000; break;
   }                                          // of switch for inactive time code
   if (measureTimeSetting != TypicalMeasure)  // Set timing factors for Typ / Max
   {
