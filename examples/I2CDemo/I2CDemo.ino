@@ -78,12 +78,11 @@ float altitude(const float seaLevel = 1013.25) {
    * @param[in] seaLevel Sea-Level pressure in millibars
    * @return    floating point altitude in meters.
    */
-  static float Altitude;
-  int32_t      temp, hum, press;
+  int32_t temp, hum, press;
+  static float Alt;
   BME280.getSensorData(temp, hum, press);  // Get the most recent values from the device
-  Altitude = 44330.0 * (1.0 - pow(((float)press / 100.0) / seaLevel,
-                                  0.1903));  // Convert into altitude in meters
-  return (Altitude);
+  Alt = 44330.0 * (1.0 - pow(((float)press / 100.0) / seaLevel, 0.1903));  // Convert to meters
+  return (Alt);
 }  // of method altitude()
 
 void setup() {
